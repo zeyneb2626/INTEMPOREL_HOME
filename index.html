@@ -141,21 +141,89 @@
     .btn-save { background:#f0f0f0; color:#333; }
     .btn-quote{ background:#006aff; color:#fff; }
 
-    /* ——— MEDIA QUERIES ——— */
+     /* ——— MEDIA-QUERIES RESPONSIVE ——— */
     @media (max-width: 1024px) {
-      #configurator { grid-template-columns: 1fr; }
+      #configurator {
+        grid-template-columns: 1fr;
+      }
       .viewer-card { height: auto; }
-      model-viewer { height: 50vh !important; min-height: 300px; }
+      model-viewer {
+        height: 70vh !important;
+        min-height: 350px;
+      }
     }
     @media (max-width: 600px) {
-      #configurator { padding: .5rem; gap: .5rem; }
-      .viewer-card { border-radius: 0; }
-      .dimensions { grid-template-columns: 1fr; }
-      model-viewer { height: 40vh !important; min-height: 200px; }
-      .controls { padding: 1rem; box-shadow: none; }
-      .group h3 { font-size: 1rem; }
-      .option { width: 50px; }
+  /* … autres règles mobile que tu laisses en place … */
+
+  /* → on agrandit verticalement le viewer */
+  model-viewer {
+    height: 70vh !important;
+    min-height: 300px;
+  }
+
+  /* → on remet les 3 cartes dimensions en ligne */
+  .dimensions {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: .5rem;
+    gap: .5rem;
+  }
+  .dim-card {
+    margin-bottom: 0;
+  }
+
+  /* le reste de tes règles mobile existantes… */
+}
+
+      /* on alléger le contrôle */
+      .controls {
+        padding:1rem;
+        box-shadow:none;
+      }
+      .group h3 { font-size:1rem; }
+      .option { width:50px; }
     }
+    /* —————————————————————————————— */
+
+  @media (max-width: 768px) {
+  /* Sur tablette / petit desktop on alourdit un peu la hauteur */
+  .viewer-card { flex-direction: column; }
+  model-viewer {
+    height: 60vh !important;
+    min-height: 400px;
+  }
+  .dimensions {
+    /* Toujours 3 en ligne, mais on resserre les marges */
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 1rem;
+  }
+  .dimensions .dim-card {
+    flex: 1;
+    margin: 0 0.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Sur mobile on passe le viewer en portrait fort pour agrandir */
+  model-viewer {
+    height: 80vh !important;
+    min-height: 300px;
+  }
+  .dimensions {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem;
+  }
+  .dimensions .dim-card {
+    flex: 1;
+    margin: 0 0.25rem;
+    /* On réduit un peu la typo si besoin */
+    font-size: 0.9rem;
+  }
+}
+
   </style>
 </head>
 <body>
