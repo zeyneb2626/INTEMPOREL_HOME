@@ -179,7 +179,8 @@
     <div class="viewer-card">
       <model-viewer
         id="mv"
-        src="INTEMPOREL21.glb"
+       src="INTEMPOREL21.glb"
+        alt="Maison Itemporel'home"
         exposure="0.6"
         shadow-intensity="2.5"
         shadow-softness="1"
@@ -397,7 +398,7 @@
       const basePrice = 170000;
       let   selection = {};
 
-      const targets = {
+     
        const targets = {
         Menuiserie: ['acierpaint','acier','volets'],
         Gouttiere:  ['gouttiere'],
@@ -405,7 +406,6 @@
         Murs:       ['murs','murs2'],
         Toit:       ['toit01','toit02','toitpatio']
       };
-
 
       function hex2rgba(h){
         const v=parseInt(h.slice(1),16);
