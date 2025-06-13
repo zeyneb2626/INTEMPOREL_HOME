@@ -697,7 +697,7 @@
 <body>
   <div class="fixed-price" id="fixed-price">
     <span class="fixed-price-label">Prix TTC</span>
-    <span class="fixed-price-amount" id="fixed-price-amount">170 000 €</span>
+    <span class="fixed-price-amount" id="fixed-price-amount">189 000 €</span>
   </div>
 
   <div id="configurator">
@@ -856,7 +856,6 @@
           <!-- GRILLE 3x2 POUR LES CONFIGURATIONS -->
           <div class="config-grid">
             
-            
             <!-- Menuiserie -->
             <div class="config-group" data-cat="Menuiserie">
               <h3>Menuiserie</h3>
@@ -886,8 +885,6 @@
               </div>
             </div>
 
-            
-
             <!-- Peinture -->
             <div class="config-group" data-cat="Murs">
               <h3>Peinture</h3>
@@ -904,7 +901,7 @@
                 </div>
                 <div class="config-option">
                   <div class="config-swatch" style="background-color: #E6C7B1" data-color="#E6C7B1" data-cost="1499"></div>
-                  <div class="config-option-label">Ocre Moajve</div>
+                  <div class="config-option-label">Ocre Mojave</div>
                   <div class="config-option-price">+1499€</div>
                 </div>
               </div>
@@ -915,13 +912,13 @@
               <h3>Tôle</h3>
               <div class="config-options">
                 <div class="config-option">
-                  <div class="config-swatch" style="background-color:#1A2E3F" data-color="#1A2E3F" data-cost="0"></div>
-                  <div class="config-option-label">Bleu ardoise</div>
+                  <div class="config-swatch" style="background-color:#9BA1A9" data-color="#9BA1A9" data-cost="0"></div>
+                  <div class="config-option-label">Gris</div>
                   <div class="config-option-price">+0€</div>
                 </div>
                 <div class="config-option">
-                  <div class="config-swatch" style="background-color:#9BA1A9" data-color="#9BA1A9" data-cost="0"></div>
-                  <div class="config-option-label">Gris</div>
+                  <div class="config-swatch" style="background-color:#1A2E3F" data-color="#1A2E3F" data-cost="0"></div>
+                  <div class="config-option-label">Bleu ardoise</div>
                   <div class="config-option-price">+0€</div>
                 </div>
                 <div class="config-option">
@@ -959,12 +956,13 @@
 
   <script>
     // Configuration des impacts énergétiques par matériau et couleur
+    // Plus la couleur est foncée, plus l'impact énergétique est élevé
     const energyImpact = {
       Bardage: {'#D4B285':120,'#8B4513':150,'#3D4C5C':180},
-      Toit: {'#1A2E3F':120,'#9BA1A9':150,'#C0392B':180},
+      Toit: {'#9BA1A9':120,'#1A2E3F':150,'#C0392B':180}, // Gris (clair) < Bleu (moyen) < Rouge (foncé)
       Pergola: {'#FFFFFF':120,'#2C2C2C':150},
-      Murs: {'#FFFFFF':120,'#D4C4A3':150,'#E6C7B1':180},
-      Menuiserie: {'#FFFFFF':120,'#2C2C2C':150},
+      Murs: {'#FFFFFF':120,'#D4C4A3':150,'#E6C7B1':180}, // Blanc < Beige < Ocre
+      Menuiserie: {'#FFFFFF':120,'#2C2C2C':150}, // Blanc < Anthracite
       Gouttiere: {'#FFFFFF':120}
     };
 
@@ -1015,7 +1013,7 @@
 
     // Variables globales
     let selection = {};
-    const basePrice = 170000;
+    const basePrice = 189000;
 
     // Initialisation au chargement de la page
     window.addEventListener('DOMContentLoaded', () => {
@@ -1088,7 +1086,7 @@
       // Mise à jour du récapitulatif des prix
       function updatePriceBreakdown() {
         let totalOptions = 0;
-        const items = ['<div class="price-item"><span>Prix de base</span><span>170 000 €</span></div>'];
+        const items = ['<div class="price-item"><span>Prix de base</span><span>189 000 €</span></div>'];
         
         Object.entries(selection).forEach(([cat]) => {
           const sw = document.querySelector(`.config-group[data-cat="${cat}"] .config-swatch.selected`);
