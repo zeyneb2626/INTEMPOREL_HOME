@@ -463,10 +463,39 @@
       border-top: 2px solid #ccc;
     }
 
+    /* SECTION EMAIL + BOUTONS */
+    .email-section {
+      background: #f8fafc;
+      border-radius: 8px;
+      padding: 1rem;
+      border: 1px solid #e2e8f0;
+      margin-top: 0.75rem;
+    }
+
+    .email-input-group {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .email-input {
+      flex: 1;
+      padding: 0.75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      transition: border-color 0.3s ease;
+    }
+
+    .email-input:focus {
+      outline: none;
+      border-color: #006aff;
+      box-shadow: 0 0 0 3px rgba(0, 106, 255, 0.1);
+    }
+
     .action-buttons {
       display: flex;
       gap: 0.75rem;
-      margin-top: 0.75rem;
     }
 
     .action-buttons button {
@@ -485,12 +514,12 @@
     }
 
     .btn-save {
-      background: #28a745;
-      color: #fff;
+      background: #D4C4A3;
+      color: #333;
     }
 
     .btn-save:hover {
-      background: #218838;
+      background: #C4B493;
     }
 
     .btn-quote {
@@ -500,6 +529,21 @@
 
     .btn-quote:hover {
       background: #0056d6;
+    }
+
+    .btn-quote:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-quote.loading {
+      background: #999;
+      cursor: wait;
+    }
+
+    .btn-quote.loading::after {
+      content: ' ⏳';
     }
 
     /* RESPONSIVE MOBILE */
@@ -513,8 +557,8 @@
       }
       
       .top-section {
-        height: 35vh; /* AUGMENTÉ DE 25vh À 35vh POUR MOBILE */
-        min-height: 250px; /* AUGMENTÉ DE 180px À 250px */
+        height: 35vh;
+        min-height: 250px;
       }
       
       /* MODÈLE 3D EN PLEINE LARGEUR EN HAUT */
@@ -735,10 +779,26 @@
         border-top: 1px solid #ccc;
       }
       
+      /* EMAIL + BOUTONS MOBILE */
+      .email-section {
+        padding: 0.5rem;
+        margin-top: 0.3rem;
+      }
+      
+      .email-input-group {
+        flex-direction: column;
+        gap: 0.25rem;
+        margin-bottom: 0.4rem;
+      }
+      
+      .email-input {
+        padding: 0.4rem;
+        font-size: 0.6rem;
+      }
+      
       .action-buttons {
         flex-direction: column;
         gap: 0.25rem;
-        margin-top: 0.4rem;
       }
       
       .action-buttons button {
@@ -776,14 +836,14 @@
           id="mv"
           src="INTEMPORELHOME22.glb"
           alt="Maison Intemporel'home"
-          camera-orbit="15deg 75deg 8m"
+          camera-orbit="15deg 75deg 12m"
           field-of-view="45deg"
           exposure="1"
           shadow-intensity="2.5"
           shadow-softness="1"
           camera-controls
-          min-camera-orbit="-Infinity 0deg 5m"
-          max-camera-orbit="Infinity 90deg 15m"
+          min-camera-orbit="-Infinity 0deg 8m"
+          max-camera-orbit="Infinity 90deg 20m"
           camera-target="0m 1m 0m"
           interaction-prompt="none">
         </model-viewer>
@@ -1025,9 +1085,21 @@
             </div>
           </div>
 
-          <div class="action-buttons">
-            <button class="btn-save" onclick="saveConfiguration()">Enregistrer PDF</button>
-            <button class="btn-quote">Demander un devis</button>
+          <!-- Section Email + Boutons -->
+          <div class="email-section">
+            <div class="email-input-group">
+              <input 
+                type="email" 
+                id="user-email" 
+                class="email-input" 
+                placeholder="Votre email pour recevoir le devis"
+                required
+              />
+            </div>
+            <div class="action-buttons">
+              <button class="btn-save" onclick="saveConfiguration()">Enregistrer PDF</button>
+              <button class="btn-quote" id="quote-btn" onclick="requestQuote()">Demander un devis</button>
+            </div>
           </div>
         </div>
       </div>
@@ -1035,6 +1107,10 @@
   </div>
 
   <script>
+    // ⚙️ CONFIGURATION WEBHOOK
+    // Remplacez cette URL par votre webhook réel
+    const WEBHOOK_URL = 'https://votre-webhook.com/api/devis';
+    
     // Configuration des impacts énergétiques par matériau et couleur
     // Plus la couleur est foncée, plus l'impact énergétique est élevé
     const energyImpact = {
@@ -1094,6 +1170,160 @@
     // Variables globales
     let selection = {};
     const basePrice = 189000;
+
+    // 📧 FONCTION POUR ENVOYER LE DEVIS VIA WEBHOOK
+    async function sendQuoteToWebhook(quoteData) {
+      try {
+        const response = await fetch(WEBHOOK_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(quoteData)
+        });
+
+        if (!response.ok) {
+          throw new Error(`Erreur HTTP: ${response.status}`);
+        }
+
+        const result = await response.json();
+        return { success: true, data: result };
+      } catch (error) {
+        console.error('Erreur lors de l\'envoi du webhook:', error);
+        return { success: false, error: error.message };
+      }
+    }
+
+    // 📋 FONCTION POUR COLLECTER TOUTES LES DONNÉES DE CONFIGURATION
+    function getConfigurationData() {
+      const emailInput = document.getElementById('user-email');
+      const energyValue = document.getElementById('energy-value').textContent;
+      const energyClass = document.getElementById('energy-class').textContent;
+      
+      // Collecter les options sélectionnées
+      const selectedOptions = {};
+      let totalOptions = 0;
+      
+      document.querySelectorAll('.config-group').forEach(group => {
+        const category = group.dataset.cat;
+        const selectedSwatch = group.querySelector('.config-swatch.selected');
+        
+        if (selectedSwatch) {
+          const label = selectedSwatch.nextElementSibling.textContent;
+          const cost = parseInt(selectedSwatch.dataset.cost);
+          const color = selectedSwatch.dataset.color;
+          const isBase = selectedSwatch.dataset.base === 'true';
+          
+          selectedOptions[category] = {
+            label: label,
+            cost: cost,
+            color: color,
+            isBase: isBase
+          };
+          
+          if (cost > 0) {
+            totalOptions += cost;
+          }
+        }
+      });
+
+      return {
+        // Informations client
+        email: emailInput.value.trim(),
+        timestamp: new Date().toISOString(),
+        
+        // Informations maison
+        houseInfo: {
+          surface: '85 m²',
+          bedrooms: 3,
+          bathrooms: 2,
+          model: 'Intemporel\'home P4'
+        },
+        
+        // Configuration sélectionnée
+        configuration: selectedOptions,
+        
+        // Performance énergétique
+        energyPerformance: {
+          consumption: energyValue,
+          class: energyClass,
+          details: document.getElementById('energy-details').textContent
+        },
+        
+        // Prix
+        pricing: {
+          basePrice: basePrice,
+          optionsTotal: totalOptions,
+          totalPrice: basePrice + totalOptions,
+          currency: 'EUR'
+        },
+        
+        // Métadonnées
+        metadata: {
+          source: 'Configurateur Intemporel\'home',
+          userAgent: navigator.userAgent,
+          url: window.location.href
+        }
+      };
+    }
+
+    // 🚀 FONCTION POUR DEMANDER UN DEVIS (AVEC WEBHOOK)
+    async function requestQuote() {
+      const emailInput = document.getElementById('user-email');
+      const quoteBtn = document.getElementById('quote-btn');
+      const email = emailInput.value.trim();
+      
+      // Validation de l'email
+      if (!email) {
+        alert('Veuillez saisir votre email pour recevoir le devis.');
+        emailInput.focus();
+        return;
+      }
+      
+      if (!isValidEmail(email)) {
+        alert('Veuillez saisir un email valide.');
+        emailInput.focus();
+        return;
+      }
+      
+      // Désactiver le bouton et afficher le loading
+      quoteBtn.disabled = true;
+      quoteBtn.classList.add('loading');
+      quoteBtn.textContent = 'Envoi en cours...';
+      
+      try {
+        // Collecter toutes les données de configuration
+        const configData = getConfigurationData();
+        
+        // Envoyer via webhook
+        const result = await sendQuoteToWebhook(configData);
+        
+        if (result.success) {
+          alert(`✅ Devis envoyé avec succès à ${email} !\n\nVous recevrez votre devis personnalisé dans quelques minutes.`);
+          
+          // Optionnel: vider le champ email après envoi réussi
+          // emailInput.value = '';
+        } else {
+          throw new Error(result.error || 'Erreur inconnue');
+        }
+        
+      } catch (error) {
+        console.error('Erreur lors de l\'envoi du devis:', error);
+        alert(`❌ Erreur lors de l'envoi du devis.\n\nVeuillez réessayer ou nous contacter directement.\n\nDétails: ${error.message}`);
+      } finally {
+        // Réactiver le bouton
+        quoteBtn.disabled = false;
+        quoteBtn.classList.remove('loading');
+        quoteBtn.textContent = 'Demander un devis';
+      }
+    }
+
+    // Fonction de validation email
+    function isValidEmail(email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRegex.test(email);
+    }
 
     // Fonction pour enregistrer la configuration en PDF
     function saveConfiguration() {
