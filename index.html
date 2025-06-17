@@ -1,1371 +1,543 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>Configuration Intemporel'home P4</title>
-  <script type="module" src="https://unpkg.com/@google/model-viewer@1.12.0/dist/model-viewer.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculateur de Capacité d'Emprunt - LULY</title>
   <style>
-    * { box-sizing:border-box; margin:0; padding:0 }
-    html, body { height:100%; font-family:sans-serif; background:#f0f2f5 }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-    .fixed-price {
-      position: fixed;
-      top: 0;
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f5f5;
+      line-height: 1.5;
+      color: #2c3e50;
+    }
+
+    .calculator-container {
+      max-width: 450px; /* RÉDUIT de 600px à 450px */
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+    }
+
+    .header {
+      background: #b5a08a;
+      color: white;
+      padding: 20px; /* RÉDUIT de 24px à 20px */
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 1.3rem; /* RÉDUIT de 1.5rem à 1.3rem */
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .header p {
+      font-size: 0.85rem; /* RÉDUIT de 0.9rem à 0.85rem */
+      opacity: 0.9;
+      font-weight: 400;
+    }
+
+    .form-container {
+      padding: 20px; /* RÉDUIT de 24px à 20px */
+    }
+
+    .form-group {
+      margin-bottom: 18px; /* RÉDUIT de 20px à 18px */
+      position: relative;
+    }
+
+    /* Barres colorées entre les sections */
+    .form-group::after {
+      content: '';
+      position: absolute;
+      bottom: -9px; /* AJUSTÉ pour la nouvelle taille */
       left: 0;
       right: 0;
-      background: rgba(255, 255, 255, 0.98);
-      padding: 1rem;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      z-index: 1000;
-      text-align: center;
-      transform: translateY(-100%);
-      transition: transform 0.3s ease;
-    }
-
-    .fixed-price.visible {
-      transform: translateY(0);
-    }
-
-    .fixed-price-label {
-      font-size: 1rem;
-      color: #666;
-      margin-right: 1rem;
-    }
-
-    .fixed-price-amount {
-      font-size: 1.5rem;
-      font-weight: bold;
-      color: #1a202c;
-    }
-
-    /* DESKTOP LAYOUT */
-    #configurator {
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      gap: 0.5rem;
-      padding: 1rem;
-    }
-
-    /* TOP SECTION - MODÈLE 3D UNIQUEMENT */
-    .top-section {
-      height: 50vh;
-    }
-
-    /* MODÈLE 3D PLEINE LARGEUR */
-    .viewer-card {
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      overflow: hidden;
-      height: 100%;
-      position: relative;
-    }
-
-    model-viewer {
-      width: 100%;
-      height: 100%;
-      background: #dddddd;
-      pointer-events: all;
-      touch-action: none;
-    }
-
-    /* FLÈCHES D'INDICATION ROTATION STYLE VOLKSWAGEN */
-    .rotation-indicators {
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      pointer-events: none;
-      z-index: 10;
-      opacity: 0.8;
-      animation: fadeInOut 4s infinite;
-    }
-
-    .rotation-hint {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      background: rgba(255, 255, 255, 0.95);
-      padding: 10px 20px;
-      border-radius: 25px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      font-size: 0.8rem;
-      color: #555;
-      font-weight: 500;
-    }
-
-    .rotation-arrows {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .rotation-arrow {
-      width: 24px;
-      height: 24px;
-      border: 2px solid #1976d2;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      color: #1976d2;
-      background: white;
-      font-weight: bold;
-    }
-
-    @keyframes fadeInOut {
-      0%, 100% { opacity: 0.8; }
-      50% { opacity: 1; }
-    }
-
-    /* BOTTOM SECTION - CONFIGURATION */
-    .bottom-section {
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      padding: 1rem;
-      flex: 1;
-    }
-
-    .config-header {
-      text-align: center;
-      margin-bottom: 1rem;
-      border-bottom: 1px solid #eee;
-      padding-bottom: 0.75rem;
-    }
-
-    .config-header h2 {
-      font-size: 1.5rem;
-      color: #222;
-      margin-bottom: 0.5rem;
-    }
-
-    .config-header .current-price {
-      font-size: 2rem;
-      font-weight: bold;
-      color: #1a202c;
-    }
-
-    .config-content {
-      display: grid;
-      grid-template-columns: 1fr 1.2fr;
-      gap: 1.5rem;
-    }
-
-    /* COLONNE GAUCHE - ÉNERGIE + PLAN + INFOS MAISON */
-    .left-column {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    /* SECTION ÉNERGIE + PLAN CÔTE À CÔTE */
-    .energy-plan-section {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-    }
-
-    .energy-section {
-      background: #f8fafc;
-      border-radius: 8px;
-      padding: 1rem;
-      border: 1px solid #e2e8f0;
-    }
-
-    .energy-section h3 {
-      font-size: 1rem;
-      color: #222;
-      margin-bottom: 0.75rem;
-    }
-
-    .energy-visual {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      margin-bottom: 0.75rem;
-    }
-
-    .house-icon {
-      width: 40px;
-      height: 40px;
-      flex-shrink: 0;
-    }
-
-    .rating-scale {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .rating-bar {
-      display: flex;
-      align-items: center;
-      height: 16px;
-      padding: 0 8px;
-      color: white;
-      opacity: 0.7;
-      font-size: 0.75rem;
-      transition: all 0.3s ease;
-      clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 50%, calc(100% - 8px) 100%, 0 100%);
-      width: 140px;
-    }
-
-    .rating-bar.active {
-      opacity: 1;
-      width: 160px;
-      transform: translateX(6px);
-      box-shadow: 0 0 12px rgba(0, 106, 255, 0.4);
-    }
-
-    .rating-label {
-      font-weight: bold;
-      margin-right: 6px;
-      min-width: 16px;
-    }
-
-    .rating-A-plus { background-color: #1B5E20; }
-    .rating-A { background-color: #2E7D32; }
-    .rating-B { background-color: #388E3C; }
-    .rating-C { background-color: #8BC34A; }
-    .rating-D { background-color: #FFEB3B; color: #000; }
-    .rating-E { background-color: #FFC107; color: #000; }
-    .rating-F { background-color: #FF9800; }
-    .rating-G { background-color: #F44336; }
-
-    .energy-info {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.85rem;
-      margin-bottom: 0.25rem;
-    }
-
-    .energy-bar {
-      width: 100%;
-      height: 4px;
-      background: #eee;
+      height: 3px;
+      background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
       border-radius: 2px;
-      overflow: hidden;
-      margin-bottom: 0.5rem;
     }
 
-    .energy-details {
-      font-size: 0.75rem;
-      color: #555;
-      line-height: 1.3;
+    .form-group:last-of-type::after {
+      display: none;
     }
 
-    /* SECTION PLAN À CÔTÉ DE L'ÉNERGIE */
-    .plan-section {
-      background: #f8fafc;
-      border-radius: 8px;
-      padding: 1rem;
-      border: 1px solid #e2e8f0;
-      display: flex;
-      flex-direction: column;
+    .form-group label {
+      display: block;
+      font-size: 0.8rem; /* RÉDUIT de 0.85rem à 0.8rem */
+      font-weight: 500;
+      color: #2c3e50;
+      margin-bottom: 6px;
     }
 
-    .plan-section h3 {
-      font-size: 1rem;
-      color: #222;
-      margin-bottom: 0.75rem;
-      text-align: center;
-    }
-
-    .plan-content {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0.5rem;
-    }
-
-    .plan-content img {
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: contain;
-    }
-
-    .plan-fallback {
-      text-align: center;
-      color: #999;
-    }
-
-    .plan-fallback-box {
-      width: 100px;
-      height: 70px;
-      background: #f0f0f0;
-      border-radius: 4px;
-      margin: 0 auto 0.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.75rem;
-    }
-
-    /* INFOS MAISON */
-    .dimensions-section {
-      background: #f8fafc;
-      border-radius: 8px;
-      padding: 1rem;
-      border: 1px solid #e2e8f0;
-    }
-
-    .dimensions-section h3 {
-      font-size: 1rem;
-      color: #222;
-      margin-bottom: 0.75rem;
-    }
-
-    .dim-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 0.5rem;
-    }
-
-    .dim-card {
-      background: #fff;
-      border: 1px solid #e2e8f0;
-      border-radius: 6px;
-      padding: 0.75rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-    }
-
-    .dim-card strong {
-      font-size: 1.1rem;
-      color: #222;
-    }
-
-    .dim-card span {
-      font-size: 0.85rem;
-      color: #666;
-    }
-
-    /* COLONNE DROITE - CONFIGURATION */
-    .right-column {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-
-    /* GRILLE 3x2 POUR LES CONFIGURATIONS */
-    .config-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      grid-template-rows: repeat(2, 1fr);
-      gap: 0.75rem;
-      margin-bottom: 1rem;
-    }
-
-    .config-group {
-      margin-bottom: 0;
-    }
-
-    .config-group h3 {
-      font-size: 0.85rem;
-      margin-bottom: 0.5rem;
-      color: #333;
-      font-weight: 600;
-    }
-
-    .config-options {
-      display: flex;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-    }
-
-    .config-option {
-      text-align: center;
-      width: 50px;
-    }
-
-    .config-swatch {
-      width: 50px;
-      height: 50px;
-      border: 2px solid #ccc;
-      border-radius: 6px;
-      cursor: pointer;
+    .input-group {
       position: relative;
-      transition: all 0.3s ease;
-      transform-origin: center;
     }
 
-    .config-swatch:hover { 
-      border-color: #999;
-      transform: scale(1.05);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    .form-control {
+      width: 100%;
+      padding: 8px 10px; /* RÉDUIT de 10px 12px à 8px 10px */
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 0.85rem; /* RÉDUIT de 0.9rem à 0.85rem */
+      transition: border-color 0.2s ease;
+      background: #fafafa;
     }
 
-    .config-swatch.selected { 
-      border-color: #006aff;
-      transform: scale(1.1);
-      box-shadow: 0 6px 20px rgba(0, 106, 255, 0.3);
+    .form-control:focus {
+      outline: none;
+      border-color: #b5a08a;
+      background: white;
     }
 
-    .config-swatch.selected::after {
-      content: '✔';
+    .currency-input {
+      padding-right: 30px; /* RÉDUIT de 35px à 30px */
+    }
+
+    .currency-symbol {
       position: absolute;
-      top: 2px;
-      right: 4px;
-      color: #006aff;
-      font-size: 1rem;
-    }
-
-    .config-option-label {
-      font-size: 0.7rem;
-      margin-top: 0.25rem;
-      line-height: 1.1;
-      color: #444;
-    }
-
-    .config-option-price {
-      font-size: 0.65rem;
+      right: 10px; /* RÉDUIT de 12px à 10px */
+      top: 50%;
+      transform: translateY(-50%);
       color: #666;
+      font-size: 0.8rem; /* RÉDUIT de 0.85rem à 0.8rem */
     }
 
-    /* PRIX ET BOUTONS */
-    .price-section {
-      background: #f8fafc;
-      border-radius: 8px;
-      padding: 1rem;
-      border: 1px solid #e2e8f0;
-      margin-top: 0.75rem;
+    .choice-buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px; /* RÉDUIT de 8px à 6px */
+      margin-top: 8px;
     }
 
-    .price-section h3 {
-      font-size: 1.1rem;
-      margin-bottom: 0.75rem;
+    .choice-btn {
+      padding: 6px 8px; /* RÉDUIT de 8px 12px à 6px 8px */
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background: #fafafa;
+      color: #495057;
+      font-size: 0.75rem; /* RÉDUIT de 0.8rem à 0.75rem */
+      font-weight: 400;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
     }
 
-    .price-item {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.85rem;
-      margin-bottom: 0.25rem;
-      padding: 0.25rem 0;
-      border-bottom: 1px solid #e2e8f0;
+    .choice-btn:hover {
+      border-color: #b5a08a;
+      background: #f0f0f0;
     }
 
-    .price-item:last-child {
-      border-bottom: none;
-      font-weight: bold;
-      font-size: 0.9rem;
-      margin-top: 0.5rem;
-      padding-top: 0.5rem;
-      border-top: 2px solid #ccc;
+    .choice-btn.active {
+      border-color: #b5a08a;
+      background: #b5a08a;
+      color: white;
     }
 
-    .action-buttons {
-      display: flex;
-      gap: 0.75rem;
-      margin-top: 0.75rem;
+    .slider-container {
+      margin-top: 10px; /* RÉDUIT de 12px à 10px */
     }
 
-    .action-buttons button {
-      flex: 1;
-      padding: 0.75rem;
-      font-size: 0.85rem;
+    .slider {
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: #ddd;
+      outline: none;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px; /* RÉDUIT de 18px à 16px */
+      height: 16px;
+      border-radius: 50%;
+      background: #b5a08a;
+      cursor: pointer;
+    }
+
+    .slider::-moz-range-thumb {
+      width: 16px; /* RÉDUIT de 18px à 16px */
+      height: 16px;
+      border-radius: 50%;
+      background: #b5a08a;
+      cursor: pointer;
+      border: none;
+    }
+
+    .slider-value {
+      text-align: center;
+      margin-top: 6px; /* RÉDUIT de 8px à 6px */
+      font-size: 0.85rem; /* RÉDUIT de 0.9rem à 0.85rem */
+      font-weight: 500;
+      color: #2c3e50;
+    }
+
+    .calculate-btn {
+      width: 100%;
+      padding: 10px; /* RÉDUIT de 12px à 10px */
+      background: #b5a08a; /* CHANGÉ du vert au beige ! */
+      color: white;
       border: none;
       border-radius: 6px;
+      font-size: 0.9rem; /* RÉDUIT de 0.95rem à 0.9rem */
+      font-weight: 500;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: background-color 0.2s ease;
+      margin-top: 14px; /* RÉDUIT de 16px à 14px */
     }
 
-    .action-buttons button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    .calculate-btn:hover {
+      background: #a08975; /* CHANGÉ pour correspondre au beige */
     }
 
-    .btn-save {
-      background: #28a745;
-      color: #fff;
+    .result-container {
+      margin-top: 20px; /* RÉDUIT de 24px à 20px */
+      padding: 16px; /* RÉDUIT de 20px à 16px */
+      background: #f8f9fa;
+      border-radius: 8px;
+      display: none;
     }
 
-    .btn-save:hover {
-      background: #218838;
+    .result-container.show {
+      display: block;
     }
 
-    .btn-quote {
-      background: #006aff;
-      color: #fff;
+    .result-amount {
+      font-size: 1.6rem; /* RÉDUIT de 1.8rem à 1.6rem */
+      font-weight: 600;
+      color: #b5a08a;
+      margin-bottom: 6px;
+      text-align: center;
     }
 
-    .btn-quote:hover {
-      background: #0056d6;
+    .result-label {
+      font-size: 0.85rem; /* RÉDUIT de 0.9rem à 0.85rem */
+      color: #666;
+      margin-bottom: 14px; /* RÉDUIT de 16px à 14px */
+      text-align: center;
     }
 
-    /* RESPONSIVE MOBILE */
+    .result-details {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px; /* RÉDUIT de 12px à 10px */
+      margin-bottom: 14px; /* RÉDUIT de 16px à 14px */
+    }
+
+    .detail-card {
+      background: white;
+      padding: 10px; /* RÉDUIT de 12px à 10px */
+      border-radius: 6px;
+      text-align: center;
+    }
+
+    .detail-value {
+      font-size: 1rem; /* RÉDUIT de 1.1rem à 1rem */
+      font-weight: 600;
+      color: #b5a08a;
+      margin-bottom: 4px;
+    }
+
+    .detail-label {
+      font-size: 0.7rem; /* RÉDUIT de 0.75rem à 0.7rem */
+      color: #666;
+    }
+
+    .tips {
+      padding: 10px; /* RÉDUIT de 12px à 10px */
+      background: #fff3cd;
+      border-left: 3px solid #ffc107;
+      border-radius: 4px;
+      font-size: 0.8rem; /* RÉDUIT de 0.85rem à 0.8rem */
+      color: #856404;
+    }
+
     @media (max-width: 768px) {
-      #configurator { 
-        display: flex;
-        flex-direction: column;
-        height: auto;
-        gap: 0;
-        padding: 0;
+      .calculator-container {
+        margin: 10px;
       }
-      
-      .top-section {
-        height: 35vh; /* AUGMENTÉ DE 25vh À 35vh POUR MOBILE */
-        min-height: 250px; /* AUGMENTÉ DE 180px À 250px */
+
+      .choice-buttons {
+        grid-template-columns: repeat(2, 1fr);
       }
-      
-      /* MODÈLE 3D EN PLEINE LARGEUR EN HAUT */
-      .viewer-card {
-        border-radius: 0;
-        order: 1;
-      }
-      
-      .rotation-indicators {
-        bottom: 10px;
-      }
-      
-      .rotation-hint {
-        padding: 8px 16px;
-        font-size: 0.7rem;
-        gap: 8px;
-      }
-      
-      .rotation-arrow {
-        width: 20px;
-        height: 20px;
-        font-size: 10px;
-      }
-      
-      /* SECTION CONFIGURATION MOBILE */
-      .bottom-section {
-        border-radius: 0;
-        padding: 1rem;
-        order: 2;
-      }
-      
-      .config-header h2 {
-        font-size: 1.2rem;
-        margin-bottom: 0.5rem;
-      }
-      
-      .config-header .current-price {
-        font-size: 1.4rem;
-        margin-bottom: 1rem;
-      }
-      
-      .config-content {
-        display: grid;
-        grid-template-columns: 1fr 1.2fr;
-        gap: 0.75rem;
-      }
-      
-      /* ÉNERGIE + PLAN EN COLONNE SUR MOBILE */
-      .energy-plan-section {
+
+      .result-details {
         grid-template-columns: 1fr;
-        gap: 0.5rem;
       }
-      
-      /* COLONNE GAUCHE MOBILE */
-      .left-column {
-        gap: 0.5rem;
-      }
-      
-      .energy-section {
-        padding: 0.5rem;
-      }
-      
-      .energy-section h3 {
-        font-size: 0.7rem;
-        margin-bottom: 0.4rem;
-      }
-      
-      .energy-visual {
-        gap: 0.4rem;
-        margin-bottom: 0.4rem;
-      }
-      
-      .house-icon {
-        width: 16px;
-        height: 16px;
-      }
-      
-      .rating-bar {
-        height: 6px;
-        padding: 0 3px;
-        font-size: 0.4rem;
-        clip-path: polygon(0 0, calc(100% - 3px) 0, 100% 50%, calc(100% - 3px) 100%, 0 100%);
-        width: 60px;
-        gap: 1px;
-      }
-      
-      .rating-bar.active {
-        width: 65px;
-        transform: translateX(2px);
-        box-shadow: 0 0 8px rgba(0, 106, 255, 0.3);
-      }
-      
-      .rating-label {
-        margin-right: 1px;
-        min-width: 6px;
-      }
-      
-      .energy-info {
-        font-size: 0.6rem;
-        margin-bottom: 0.15rem;
-      }
-      
-      .energy-bar {
-        height: 2px;
-        margin-bottom: 0.25rem;
-      }
-      
-      .energy-details {
-        font-size: 0.55rem;
-        line-height: 1.1;
-      }
-      
-      /* PLAN MOBILE */
-      .plan-section {
-        padding: 0.5rem;
-      }
-      
-      .plan-section h3 {
-        font-size: 0.7rem;
-        margin-bottom: 0.4rem;
-      }
-      
-      /* DIMENSIONS MOBILE */
-      .dimensions-section {
-        padding: 0.5rem;
-      }
-      
-      .dimensions-section h3 {
-        font-size: 0.7rem;
-        margin-bottom: 0.4rem;
-      }
-      
-      .dim-grid {
-        gap: 0.25rem;
-      }
-      
-      .dim-card {
-        padding: 0.4rem;
-        border-radius: 3px;
-      }
-      
-      .dim-card strong {
-        font-size: 0.7rem;
-      }
-      
-      .dim-card span {
-        font-size: 0.6rem;
-      }
-      
-      /* COLONNE DROITE MOBILE */
-      .right-column {
-        gap: 0.4rem;
-      }
-      
-      .config-grid {
-        gap: 0.4rem;
-        margin-bottom: 0.5rem;
-      }
-      
-      .config-group h3 {
-        font-size: 0.6rem;
-        margin-bottom: 0.2rem;
-      }
-      
-      .config-options {
-        gap: 0.15rem;
-      }
-      
-      .config-option {
-        width: 24px;
-      }
-      
-      .config-swatch {
-        width: 24px;
-        height: 24px;
-        border: 1px solid #ccc;
-        border-radius: 3px;
-      }
-      
-      .config-swatch.selected::after {
-        top: 0px;
-        right: 1px;
-        font-size: 0.5rem;
-      }
-      
-      .config-option-label {
-        font-size: 0.5rem;
-        margin-top: 0.1rem;
-        line-height: 1;
-      }
-      
-      .config-option-price {
-        font-size: 0.45rem;
-        line-height: 1;
-      }
-      
-      /* PRIX MOBILE */
-      .price-section {
-        padding: 0.5rem;
-        margin-top: 0.3rem;
-      }
-      
-      .price-section h3 {
-        font-size: 0.7rem;
-        margin-bottom: 0.4rem;
-      }
-      
-      .price-item {
-        font-size: 0.6rem;
-        margin-bottom: 0.15rem;
-        padding: 0.15rem 0;
-      }
-      
-      .price-item:last-child {
-        font-size: 0.65rem;
-        margin-top: 0.2rem;
-        padding-top: 0.2rem;
-        border-top: 1px solid #ccc;
-      }
-      
-      .action-buttons {
-        flex-direction: column;
-        gap: 0.25rem;
-        margin-top: 0.4rem;
-      }
-      
-      .action-buttons button {
-        padding: 0.4rem;
-        font-size: 0.6rem;
-      }
-    }
 
-    @keyframes drift {
-      0% { transform: translateY(0) translateX(0); opacity: 0.6; }
-      50% { transform: translateY(-2px) translateX(2px); opacity: 0.3; }
-      100% { transform: translateY(0) translateX(0); opacity: 0.6; }
-    }
-
-    .smoke path {
-      animation: drift 3s infinite ease-in-out;
-    }
-
-    .house-body {
-      transition: fill 0.6s ease-in-out, stroke 0.6s ease-in-out;
+      .result-amount {
+        font-size: 1.4rem; /* RÉDUIT de 1.5rem à 1.4rem */
+      }
     }
   </style>
 </head>
 <body>
-  <div class="fixed-price" id="fixed-price">
-    <span class="fixed-price-label">Prix TTC</span>
-    <span class="fixed-price-amount" id="fixed-price-amount">189 000 €</span>
-  </div>
-
-  <div id="configurator">
-    <!-- TOP SECTION - MODÈLE 3D UNIQUEMENT -->
-    <div class="top-section">
-      <div class="viewer-card">
-        <model-viewer
-          id="mv"
-          src="INTEMPORELHOME22.glb"
-          alt="Maison Intemporel'home"
-          camera-orbit="15deg 75deg 8m"
-          field-of-view="45deg"
-          exposure="1"
-          shadow-intensity="2.5"
-          shadow-softness="1"
-          camera-controls
-          min-camera-orbit="-Infinity 0deg 5m"
-          max-camera-orbit="Infinity 90deg 15m"
-          camera-target="0m 1m 0m"
-          interaction-prompt="none">
-        </model-viewer>
-        <!-- Flèches d'indication style Volkswagen -->
-        <div class="rotation-indicators">
-          <div class="rotation-hint">
-            <div class="rotation-arrows">
-              <div class="rotation-arrow">◀</div>
-              <div class="rotation-arrow">▶</div>
-            </div>
-            <span>Faites glisser pour faire tourner</span>
-          </div>
-        </div>
-      </div>
+  <div class="calculator-container">
+    <div class="header">
+      <h1>Calculateur de Capacité d'Emprunt</h1>
+      <p>Estimez votre capacité d'emprunt immobilier</p>
     </div>
 
-    <!-- BOTTOM SECTION - CONFIGURATION -->
-    <div class="bottom-section">
-      <!-- TITRE ET PRIX -->
-      <div class="config-header">
-        <h2>Configuration Intemporel'home</h2>
-        <div class="current-price" id="total-price">189 000 €</div>
-      </div>
-
-      <div class="config-content">
-        <!-- COLONNE GAUCHE - ÉNERGIE + PLAN + INFOS MAISON -->
-        <div class="left-column">
-          <!-- ÉNERGIE + PLAN CÔTE À CÔTE -->
-          <div class="energy-plan-section">
-            <!-- SECTION ÉNERGIE -->
-            <div class="energy-section">
-              <h3>Performance énergétique</h3>
-              <div class="energy-visual">
-                <div class="house-icon">
-                  <svg class="house-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                    <path
-                      class="house-body"
-                      d="M20,70 L20,40 L50,15 L80,40 L80,70"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="6"
-                      stroke-linejoin="round"
-                      stroke-linecap="round"/>
-                    <path
-                      d="M65,30 L65,20"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="6"
-                      stroke-linecap="round"/>
-                    <g class="smoke">
-                      <path
-                        d="M63,17 C67,15 69,13 67,11 M67,12 C71,10 73,8 71,6"
-                        fill="none"
-                        stroke="#999"
-                        stroke-width="1"
-                        stroke-linecap="round"/>
-                    </g>
-                  </svg>
-                </div>
-                <div class="rating-scale">
-                  <div class="rating-bar rating-A-plus" data-rating="A+">
-                    <span class="rating-label">A+</span>
-                    <span>≤50</span>
-                  </div>
-                  <div class="rating-bar rating-A" data-rating="A">
-                    <span class="rating-label">A</span>
-                    <span>51-90</span>
-                  </div>
-                  <div class="rating-bar rating-B" data-rating="B">
-                    <span class="rating-label">B</span>
-                    <span>91-150</span>
-                  </div>
-                  <div class="rating-bar rating-C" data-rating="C">
-                    <span class="rating-label">C</span>
-                    <span>151-230</span>
-                  </div>
-                  <div class="rating-bar rating-D" data-rating="D">
-                    <span class="rating-label">D</span>
-                    <span>231-330</span>
-                  </div>
-                  <div class="rating-bar rating-E" data-rating="E">
-                    <span class="rating-label">E</span>
-                    <span>331-450</span>
-                  </div>
-                  <div class="rating-bar rating-F" data-rating="F">
-                    <span class="rating-label">F</span>
-                    <span>451-590</span>
-                  </div>
-                  <div class="rating-bar rating-G" data-rating="G">
-                    <span class="rating-label">G</span>
-                    <span>>590</span>
-                  </div>
-                </div>
-              </div>
-              <div class="energy-info">
-                <span>Consommation :</span>
-                <span id="energy-value">120 kWh/an</span>
-              </div>
-              <div class="energy-info">
-                <span>Classe :</span>
-                <span id="energy-class">B</span>
-              </div>
-              <div class="energy-bar">
-                <div id="energy-bar-fill" style="width: 20%; background: #4caf50; height: 100%;"></div>
-              </div>
-              <div class="energy-details">
-                <span id="energy-details">Configuration de base</span>
-              </div>
-            </div>
-
-            <!-- SECTION PLAN À CÔTÉ DE L'ÉNERGIE -->
-            <div class="plan-section">
-              <h3>Plan schématique</h3>
-              <div class="plan-content">
-                <img 
-                  src="./PLAN3.png" 
-                  alt="Plan schématique de la maison"
-                  onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
-                />
-                <div class="plan-fallback" style="display: none;">
-                  <div class="plan-fallback-box">Plan</div>
-                  <span>Plan schématique</span>
-                </div>
-              </div>
-            </div>
+    <div class="form-container">
+      <form id="loanForm">
+        <!-- Revenus mensuels -->
+        <div class="form-group">
+          <label for="income">Revenus mensuels nets</label>
+          <div class="input-group">
+            <input type="number" id="income" class="form-control currency-input" placeholder="1480" min="0" step="10">
+            <span class="currency-symbol">€</span>
           </div>
-          
-          <!-- INFOS MAISON -->
-          <div class="dimensions-section">
-            <h3>Informations</h3>
-            <div class="dim-grid">
-              <div class="dim-card">
-                <strong>85 m²</strong>
-                <span>Surface</span>
-              </div>
-              <div class="dim-card">
-                <strong>3 Ch</strong>
-                <span>Chambres</span>
-              </div>
-              <div class="dim-card">
-                <strong>2 SdE</strong>
-                <span>Salles d'eau</span>
-              </div>
-            </div>
+          <div class="choice-buttons">
+            <button type="button" class="choice-btn" data-value="1400">1 400 €</button>
+            <button type="button" class="choice-btn" data-value="2500">2 500 €</button>
+            <button type="button" class="choice-btn" data-value="3500">3 500 €</button>
+            <button type="button" class="choice-btn" data-value="5000">+</button>
           </div>
         </div>
+
+        <!-- Charges mensuelles -->
+        <div class="form-group">
+          <label for="expenses">Charges mensuelles (crédits, loyer actuel)</label>
+          <div class="input-group">
+            <input type="number" id="expenses" class="form-control currency-input" placeholder="600" min="0" step="10">
+            <span class="currency-symbol">€</span>
+          </div>
+          <div class="choice-buttons">
+            <button type="button" class="choice-btn" data-value="0">0</button>
+            <button type="button" class="choice-btn" data-value="600">600 €</button>
+            <button type="button" class="choice-btn" data-value="1500">1 500€+</button>
+            <button type="button" class="choice-btn" data-value=""></button>
+          </div>
+        </div>
+
+        <!-- Apport personnel -->
+        <div class="form-group">
+          <label for="downPayment">Apport personnel</label>
+          <div class="input-group">
+            <input type="number" id="downPayment" class="form-control currency-input" placeholder="10000" min="0" step="1000">
+            <span class="currency-symbol">€</span>
+          </div>
+          <div class="choice-buttons">
+            <button type="button" class="choice-btn" data-value="0">—</button>
+            <button type="button" class="choice-btn" data-value="5000">5 000</button>
+            <button type="button" class="choice-btn" data-value="10000">10 000 €</button>
+            <button type="button" class="choice-btn" data-value="20000">20 000 €</button>
+          </div>
+        </div>
+
+        <!-- Durée du prêt -->
+        <div class="form-group">
+          <label for="duration">Durée du prêt</label>
+          <div class="slider-container">
+            <input type="range" id="duration" class="slider" min="10" max="25" value="20" step="1">
+            <div class="slider-value"><span id="durationValue">20</span> ans</div>
+          </div>
+        </div>
+
+        <!-- Taux d'intérêt -->
+        <div class="form-group">
+          <label for="rate">Taux d'intérêt estimé</label>
+          <div class="slider-container">
+            <input type="range" id="rate" class="slider" min="2" max="5" value="3.8" step="0.1">
+            <div class="slider-value"><span id="rateValue">3.8</span> %</div>
+          </div>
+        </div>
+
+        <button type="submit" class="calculate-btn">
+          Calculer ma capacité d'emprunt
+        </button>
+      </form>
+
+      <div id="resultContainer" class="result-container">
+        <div class="result-amount" id="resultAmount">0 €</div>
+        <div class="result-label">Capacité d'emprunt maximale</div>
         
-        <!-- COLONNE DROITE - CONFIGURATION -->
-        <div class="right-column">
-          <!-- GRILLE 3x2 POUR LES CONFIGURATIONS -->
-          <div class="config-grid">
-            
-            <!-- Menuiserie -->
-            <div class="config-group" data-cat="Menuiserie">
-              <h3>Menuiserie</h3>
-              <div class="config-options">
-                <div class="config-option">
-                  <div class="config-swatch" style="background-color:#FFFFFF" data-color="#FFFFFF" data-cost="0" data-base="true"></div>
-                  <div class="config-option-label">Blanc</div>
-                  <div class="config-option-price">Base</div>
-                </div>
-                <div class="config-option">
-                  <div class="config-swatch" style="background-color:#2C2C2C" data-color="#2C2C2C" data-cost="2499"></div>
-                  <div class="config-option-label">Anthracite</div>
-                  <div class="config-option-price">+2499€</div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Gouttière -->
-            <div class="config-group" data-cat="Gouttiere">
-              <h3>Gouttière</h3>
-              <div class="config-options">
-                <div class="config-option">
-                  <div class="config-swatch" style="background-color:#FFFFFF" data-color="#FFFFFF" data-cost="0" data-base="true"></div>
-                  <div class="config-option-label">Blanc</div>
-                  <div class="config-option-price">Base</div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Peinture -->
-            <div class="config-group" data-cat="Murs">
-              <h3>Peinture</h3>
-              <div class="config-options">
-                <div class="config-option">
-                  <div class="config-swatch" style="background-color:#FFFFFF" data-color="#FFFFFF" data-cost="0" data-base="true"></div>
-                  <div class="config-option-label">Blanc</div>
-                  <div class="config-option-price">Base</div>
-                </div>
-                <div class="config-option">
-                  <div class="config-swatch" style="background-color:#D4C4A3" data-color="#D4C4A3" data-cost="999"></div>
-                  <div class="config-option-label">Beige Wes</div>
-                  <div class="config-option-price">+999€</div>
-                </div>
-                <div class="config-option">
-                  <div class="config-swatch" style="background-color: #E6C7B1" data-color="#E6C7B1" data-cost="1499"></div>
-                  <div class="config-option-label">Ocre Mojave</div>
-                  <div class="config-option-price">+1499€</div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Tôle -->
-            <div class="config-group" data-cat="Toit">
-              <h3>Tôle</h3>
-              <div class="config-options">
-                <div class="config-option">
-                  <div class="config-swatch" style="background-color:#9BA1A9" data-color="#9BA1A9" data-cost="0" data-base="true"></div>
-                  <div class="config-option-label">Gris</div>
-                  <div class="config-option-price">Base</div>
-                </div>
-                <div class="config-option">
-                  <div class="config-swatch" style="background-color:#1A2E3F" data-color="#1A2E3F" data-cost="0"></div>
-                  <div class="config-option-label">Bleu ardoise</div>
-                  <div class="config-option-price">Base</div>
-                </div>
-                <div class="config-option">
-                  <div class="config-swatch" style="background-color:#C0392B" data-color="#C0392B" data-cost="1800"></div>
-                  <div class="config-option-label">Rouge Hibiscus</div>
-                  <div class="config-option-price">+1800€</div>
-                </div>
-              </div>
-            </div>
+        <div class="result-details">
+          <div class="detail-card">
+            <div class="detail-value" id="monthlyPayment">0 €</div>
+            <div class="detail-label">Mensualité</div>
           </div>
-
-          <!-- Prix et boutons -->
-          <div class="price-section">
-            <h3>Récapitulatif</h3>
-            <div id="price-breakdown">
-              <div class="price-item">
-                <span>Prix de base</span>
-                <span>189 000 €</span>
-              </div>
-              <div class="price-item">
-                <span>Total TTC</span>
-                <span id="total-price-display">189 000 €</span>
-              </div>
-            </div>
+          <div class="detail-card">
+            <div class="detail-value" id="totalCost">0 €</div>
+            <div class="detail-label">Coût total</div>
           </div>
-
-          <div class="action-buttons">
-            <button class="btn-save" onclick="saveConfiguration()">Enregistrer PDF</button>
-            <button class="btn-quote">Demander un devis</button>
+          <div class="detail-card">
+            <div class="detail-value" id="totalInterest">0 €</div>
+            <div class="detail-label">Intérêts totaux</div>
           </div>
+          <div class="detail-card">
+            <div class="detail-value" id="debtRatio">0%</div>
+            <div class="detail-label">Taux d'endettement</div>
+          </div>
+        </div>
+
+        <div class="tips">
+          <strong>Conseil :</strong> <span id="tipsText">Ces résultats sont une estimation basée sur les critères bancaires standards.</span>
         </div>
       </div>
     </div>
   </div>
 
   <script>
-    // Configuration des impacts énergétiques par matériau et couleur
-    // Plus la couleur est foncée, plus l'impact énergétique est élevé
-    const energyImpact = {
-      Bardage: {'#D4B285':120,'#8B4513':150,'#3D4C5C':180},
-      Toit: {'#9BA1A9':120,'#1A2E3F':150,'#C0392B':180}, // Gris (clair) < Bleu (moyen) < Rouge (foncé)
-      Pergola: {'#FFFFFF':120,'#2C2C2C':150},
-      Murs: {'#FFFFFF':120,'#D4C4A3':150,'#E6C7B1':180}, // Blanc < Beige < Ocre
-      Menuiserie: {'#FFFFFF':120,'#2C2C2C':150}, // Blanc < Anthracite
-      Gouttiere: {'#FFFFFF':120}
-    };
+    (function() {
+      'use strict';
 
-    // Couleurs pour les classes énergétiques
-    const ratingColors = {
-      'Aplus': '#1B5E20',
-      'A': '#2E7D32',
-      'B': '#388E3C',
-      'C': '#8BC34A',
-      'D': '#FFEB3B',
-      'E': '#FFC107',
-      'F': '#FF9800',
-      'G': '#F44336'
-    };
+      const form = document.getElementById('loanForm');
+      const incomeInput = document.getElementById('income');
+      const expensesInput = document.getElementById('expenses');
+      const downPaymentInput = document.getElementById('downPayment');
+      const durationSlider = document.getElementById('duration');
+      const rateSlider = document.getElementById('rate');
+      const durationValue = document.getElementById('durationValue');
+      const rateValue = document.getElementById('rateValue');
+      const resultContainer = document.getElementById('resultContainer');
+      const resultAmount = document.getElementById('resultAmount');
+      const monthlyPayment = document.getElementById('monthlyPayment');
+      const totalCost = document.getElementById('totalCost');
+      const totalInterest = document.getElementById('totalInterest');
+      const debtRatio = document.getElementById('debtRatio');
+      const tipsText = document.getElementById('tipsText');
 
-    // Fonction pour déterminer la classe énergétique
-    function getEnergyClass(kwh) {
-      if(kwh <= 50) return 'Aplus';
-      if(kwh <= 90) return 'A';
-      if(kwh <= 150) return 'B';
-      if(kwh <= 230) return 'C';
-      if(kwh <= 330) return 'D';
-      if(kwh <= 450) return 'E';
-      if(kwh <= 590) return 'F';
-      return 'G';
-    }
-
-    // Mapping des catégories vers les noms des matériaux dans le modèle 3D
-    const targets = {
-      Bardage:    ['poutrine01'],
-      Menuiserie: ['porte','acierpaint','volets'],
-      Gouttiere:  ['goutieres'],
-      Pergola:    ['poutres','volet_pergola'],
-      Murs:       ['murs'],
-      Toit:       ['toit02','toit01']
-    };
-
-    // Conversion couleur hexadécimale vers RGBA
-    function hex2rgba(h) {
-      const v = parseInt(h.slice(1), 16);
-      return [
-        (v >> 16 & 255) / 255,
-        (v >> 8 & 255) / 255,
-        (v & 255) / 255,
-        1
-      ];
-    }
-
-    // Variables globales
-    let selection = {};
-    const basePrice = 189000;
-
-    // Fonction pour enregistrer la configuration en PDF
-    function saveConfiguration() {
-      try {
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF();
-        
-        // Titre principal
-        pdf.setFontSize(20);
-        pdf.setTextColor(0, 106, 255);
-        pdf.text('Configuration Intemporel\'home', 105, 20, { align: 'center' });
-        
-        // Date
-        pdf.setFontSize(10);
-        pdf.setTextColor(100, 100, 100);
-        const today = new Date().toLocaleDateString('fr-FR');
-        pdf.text(`Générée le ${today}`, 105, 30, { align: 'center' });
-        
-        let yPos = 50;
-        
-        // Informations générales
-        pdf.setFontSize(14);
-        pdf.setTextColor(0, 0, 0);
-        pdf.text('Informations générales', 20, yPos);
-        yPos += 10;
-        
-        pdf.setFontSize(10);
-        pdf.text('Surface: 85 m²', 20, yPos);
-        pdf.text('Chambres: 3', 80, yPos);
-        pdf.text('Salles d\'eau: 2', 140, yPos);
-        yPos += 20;
-        
-        // Configuration sélectionnée
-        pdf.setFontSize(14);
-        pdf.text('Configuration sélectionnée', 20, yPos);
-        yPos += 10;
-        
-        pdf.setFontSize(10);
-        
-        // Parcourir toutes les catégories
-        document.querySelectorAll('.config-group').forEach(group => {
-          const category = group.dataset.cat;
-          const selectedSwatch = group.querySelector('.config-swatch.selected');
+      // Gestion des boutons de choix rapide
+      document.querySelectorAll('.choice-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          const value = this.dataset.value;
           
-          if (selectedSwatch) {
-            const label = selectedSwatch.nextElementSibling.textContent;
-            const cost = parseInt(selectedSwatch.dataset.cost);
-            
-            pdf.text(`${category}: ${label}`, 20, yPos);
-            if (cost > 0) {
-              pdf.text(`+${cost.toLocaleString('fr-FR')} €`, 120, yPos);
-            } else {
-              pdf.text('Base', 120, yPos);
-            }
-            yPos += 6;
-          }
-        });
-        
-        yPos += 15;
-        
-        // Performance énergétique
-        const energyValue = document.getElementById('energy-value').textContent;
-        const energyClass = document.getElementById('energy-class').textContent;
-        
-        pdf.setFontSize(14);
-        pdf.text('Performance énergétique', 20, yPos);
-        yPos += 10;
-        
-        pdf.setFontSize(10);
-        pdf.text(`Consommation: ${energyValue}`, 20, yPos);
-        pdf.text(`Classe énergétique: ${energyClass}`, 120, yPos);
-        yPos += 20;
-        
-        // Récapitulatif financier
-        pdf.setFontSize(14);
-        pdf.text('Récapitulatif financier', 20, yPos);
-        yPos += 10;
-        
-        pdf.setFontSize(10);
-        pdf.text(`Prix de base: ${basePrice.toLocaleString('fr-FR')} €`, 20, yPos);
-        yPos += 6;
-        
-        let totalOptions = 0;
-        document.querySelectorAll('.config-group').forEach(group => {
-          const selectedSwatch = group.querySelector('.config-swatch.selected');
-          if (selectedSwatch) {
-            const cost = parseInt(selectedSwatch.dataset.cost);
-            if (cost > 0) {
-              const category = group.dataset.cat;
-              const label = selectedSwatch.nextElementSibling.textContent;
-              totalOptions += cost;
-              pdf.text(`${category} - ${label}: +${cost.toLocaleString('fr-FR')} €`, 20, yPos);
-              yPos += 6;
-            }
-          }
-        });
-        
-        yPos += 10;
-        pdf.setFontSize(12);
-        pdf.setTextColor(0, 106, 255);
-        pdf.text(`TOTAL TTC: ${(basePrice + totalOptions).toLocaleString('fr-FR')} €`, 20, yPos);
-        
-        // Télécharger le PDF
-        pdf.save(`Configuration_Intemporelhome_${today.replace(/\//g, '-')}.pdf`);
-        
-      } catch (error) {
-        console.error('Erreur lors de la génération du PDF:', error);
-        alert('Erreur lors de la génération du PDF. Veuillez réessayer.');
-      }
-    }
-
-    // Initialisation au chargement de la page
-    window.addEventListener('DOMContentLoaded', () => {
-      const mv = document.getElementById('mv');
-      const totalEl = document.getElementById('total-price');
-      const totalDisplayEl = document.getElementById('total-price-display');
-      const fixedPriceEl = document.getElementById('fixed-price-amount');
-      const energyEl = document.getElementById('energy-value');
-      const classEl = document.getElementById('energy-class');
-      const barFill = document.getElementById('energy-bar-fill');
-      const ratingBars = document.querySelectorAll('.rating-bar');
-      const houseSvg = document.querySelector('.house-svg');
-      const fixedPrice = document.getElementById('fixed-price');
-
-      // Masquer les flèches après quelques secondes
-      setTimeout(() => {
-        const indicators = document.querySelector('.rotation-indicators');
-        if (indicators) {
-          indicators.style.opacity = '0';
-          setTimeout(() => {
-            indicators.style.display = 'none';
-          }, 1000);
-        }
-      }, 5000);
-
-      // Gestion du prix fixe au scroll
-      window.addEventListener('scroll', () => {
-        if (window.scrollY > 100) {
-          fixedPrice.classList.add('visible');
-        } else {
-          fixedPrice.classList.remove('visible');
-        }
-      });
-
-      // Mise à jour de la performance énergétique
-      function updateEnergy() {
-        let sum = 120, lines = [];
-        Object.entries(selection).forEach(([cat]) => {
-          const sw = document.querySelector(`.config-group[data-cat="${cat}"] .config-swatch.selected`);
-          if(!sw) return;
-          const col = sw.dataset.color;
-          const imp = energyImpact[cat][col] || 120;
-          sum += (imp - 120);
-          if (imp !== 120) {
-            const label = sw.nextElementSibling?.textContent || '';
-            lines.push(`• ${cat} – ${label}: ${imp>120?'+':''}${imp-120} kWh/an`);
-          }
-        });
-
-        // Mise à jour de l'affichage énergétique
-        if (energyEl) energyEl.textContent = `${sum} kWh/an`;
-        
-        const cls = getEnergyClass(sum);
-        const displayClass = cls === 'Aplus' ? 'A+' : cls;
-        
-        if (classEl) classEl.textContent = displayClass;
-        
-        const percentage = Math.min(100, Math.round(sum/590*100));
-        if (barFill) {
-          barFill.style.width = `${percentage}%`;
-          barFill.style.background = ratingColors[cls];
-        }
-
-        // Mise à jour des barres de notation avec effet lumineux
-        ratingBars.forEach(bar => {
-          const rating = bar.dataset.rating;
-          const isActive = (rating === 'A+' && cls === 'Aplus') || rating === cls;
-          bar.classList.toggle('active', isActive);
-        });
-
-        // Changement de couleur de l'icône maison
-        if (houseSvg) houseSvg.style.color = ratingColors[cls];
-        
-        // Mise à jour des détails énergétiques
-        const detailsEl = document.getElementById('energy-details');
-        if (detailsEl) {
-          detailsEl.textContent = lines.length ? lines.join(', ') : 'Configuration de base';
-        }
-      }
-
-      // Mise à jour du récapitulatif des prix
-      function updatePriceBreakdown() {
-        let totalOptions = 0;
-        const items = ['<div class="price-item"><span>Prix de base</span><span>189 000 €</span></div>'];
-        
-        Object.entries(selection).forEach(([cat]) => {
-          const sw = document.querySelector(`.config-group[data-cat="${cat}"] .config-swatch.selected`);
-          if(!sw) return;
-          const cost = +sw.dataset.cost;
-          if(cost > 0) {
-            totalOptions += cost;
-            const label = sw.nextElementSibling?.textContent || '';
-            items.push(`
-              <div class="price-item">
-                <span>${cat} - ${label}</span>
-                <span>+${cost.toLocaleString('fr-FR')} €</span>
-              </div>
-            `);
-          }
-        });
-
-        items.push(`
-          <div class="price-item">
-            <span>Total TTC</span>
-            <span>${(basePrice + totalOptions).toLocaleString('fr-FR')} €</span>
-          </div>
-        `);
-
-        // Mise à jour de l'affichage des prix
-        const breakdownEl = document.getElementById('price-breakdown');
-        if (breakdownEl) breakdownEl.innerHTML = items.join('');
-        
-        const totalPrice = `${(basePrice + totalOptions).toLocaleString('fr-FR')} €`;
-        if (fixedPriceEl) fixedPriceEl.textContent = totalPrice;
-        if (totalEl) totalEl.textContent = totalPrice;
-        if (totalDisplayEl) totalDisplayEl.textContent = totalPrice;
-      }
-
-      // Configuration des gestionnaires d'événements pour les échantillons
-      function setupSwatchHandlers() {
-        document.querySelectorAll('.config-group').forEach(group => {
-          const cat = group.dataset.cat;
-          const frags = targets[cat] || [];
+          // Ne rien faire si le bouton est vide
+          if (value === '') return;
           
-          group.querySelectorAll('.config-swatch').forEach(sw => {
-            sw.addEventListener('click', () => {
-              // Retirer la sélection de tous les échantillons de cette catégorie
-              document.querySelectorAll(`.config-group[data-cat="${cat}"] .config-swatch`).forEach(x => x.classList.remove('selected'));
-              
-              // Ajouter la sélection à l'échantillon cliqué
-              sw.classList.add('selected');
-              selection[cat] = +sw.dataset.cost;
-              updatePriceBreakdown();
-              
-              // Mise à jour du modèle 3D
-              const rgba = hex2rgba(sw.dataset.color);
-              if (mv.model && mv.model.materials) {
-                mv.model.materials.forEach(m => {
-                  const name = m.name.toLowerCase();
-                  if(frags.some(f => name.includes(f))) {
-                    m.pbrMetallicRoughness.setBaseColorFactor(rgba);
-                    m.pbrMetallicRoughness.setMetallicFactor(1);
-                    m.pbrMetallicRoughness.setRoughnessFactor(1);
-                  }
-                });
-              }
-              updateEnergy();
-            });
+          const input = this.closest('.form-group').querySelector('input');
+          
+          this.closest('.choice-buttons').querySelectorAll('.choice-btn').forEach(b => {
+            b.classList.remove('active');
           });
           
-          // Auto-sélection de la première option (configuration de base)
-          const first = group.querySelector('.config-swatch[data-base="true"]') || group.querySelector('.config-swatch');
-          if(first) first.click();
+          this.classList.add('active');
+          input.value = value;
         });
+      });
+
+      // Gestion de la saisie manuelle - retirer l'état actif des boutons
+      [incomeInput, expensesInput, downPaymentInput].forEach(input => {
+        input.addEventListener('input', function() {
+          // Retirer l'état actif de tous les boutons du groupe
+          this.closest('.form-group').querySelectorAll('.choice-btn').forEach(btn => {
+            btn.classList.remove('active');
+          });
+        });
+      });
+
+      durationSlider.addEventListener('input', function() {
+        durationValue.textContent = this.value;
+      });
+
+      rateSlider.addEventListener('input', function() {
+        rateValue.textContent = parseFloat(this.value).toFixed(1);
+      });
+
+      function formatNumber(num) {
+        return new Intl.NumberFormat('fr-FR').format(Math.round(num));
       }
 
-      // Initialisation après le chargement du modèle 3D
-      mv.addEventListener('load', () => {
-        setupSwatchHandlers();
-        updateEnergy();
+      function calculateLoanCapacity(income, expenses, downPayment, duration, rate) {
+        const maxDebtRatio = 0.35;
+        const availableIncome = income * maxDebtRatio;
+        const maxMonthlyPayment = Math.max(0, availableIncome - expenses);
+        
+        if (maxMonthlyPayment <= 0) {
+          return {
+            loanAmount: 0,
+            monthlyPayment: 0,
+            totalCost: 0,
+            totalInterest: 0,
+            debtRatio: 100
+          };
+        }
+
+        const monthlyRate = rate / 100 / 12;
+        const numberOfPayments = duration * 12;
+        
+        let loanAmount;
+        if (monthlyRate === 0) {
+          loanAmount = maxMonthlyPayment * numberOfPayments;
+        } else {
+          loanAmount = maxMonthlyPayment * ((1 - Math.pow(1 + monthlyRate, -numberOfPayments)) / monthlyRate);
+        }
+
+        const totalProjectCost = loanAmount + downPayment;
+        const totalCost = maxMonthlyPayment * numberOfPayments;
+        const totalInterest = totalCost - loanAmount;
+        const actualDebtRatio = ((maxMonthlyPayment + expenses) / income) * 100;
+
+        return {
+          loanAmount: Math.max(0, loanAmount),
+          totalProjectCost: totalProjectCost,
+          monthlyPayment: maxMonthlyPayment,
+          totalCost: totalCost,
+          totalInterest: Math.max(0, totalInterest),
+          debtRatio: actualDebtRatio
+        };
+      }
+
+      function generateTips(income, expenses, debtRatio, loanAmount) {
+        if (debtRatio > 33) {
+          return "Votre taux d'endettement est élevé. Réduisez vos charges pour améliorer votre capacité.";
+        }
+        
+        if (loanAmount < 100000) {
+          return "Augmentez votre apport personnel pour accéder à de meilleurs taux d'intérêt.";
+        }
+        
+        if (income < 3000) {
+          return "Considérez un co-emprunteur pour augmenter vos revenus pris en compte.";
+        }
+        
+        return "Profil favorable pour l'obtention d'un crédit immobilier.";
+      }
+
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const income = parseFloat(incomeInput.value) || 0;
+        const expenses = parseFloat(expensesInput.value) || 0;
+        const downPayment = parseFloat(downPaymentInput.value) || 0;
+        const duration = parseInt(durationSlider.value);
+        const rate = parseFloat(rateSlider.value);
+
+        if (income <= 0) {
+          alert('Veuillez saisir vos revenus mensuels');
+          return;
+        }
+
+        const results = calculateLoanCapacity(income, expenses, downPayment, duration, rate);
+
+        resultAmount.textContent = formatNumber(results.totalProjectCost) + ' €';
+        monthlyPayment.textContent = formatNumber(results.monthlyPayment) + ' €';
+        totalCost.textContent = formatNumber(results.totalCost) + ' €';
+        totalInterest.textContent = formatNumber(results.totalInterest) + ' €';
+        debtRatio.textContent = results.debtRatio.toFixed(1) + '%';
+
+        const tips = generateTips(income, expenses, results.debtRatio, results.loanAmount);
+        tipsText.textContent = tips;
+
+        resultContainer.classList.add('show');
+        resultContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
-    });
+
+    })();
   </script>
 </body>
 </html>
