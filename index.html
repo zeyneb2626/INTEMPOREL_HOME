@@ -72,44 +72,52 @@
       touch-action: none;
     }
 
-    /* FLÈCHES D'INDICATION ROTATION */
+    /* FLÈCHES D'INDICATION ROTATION STYLE VOLKSWAGEN */
     .rotation-indicators {
       position: absolute;
-      top: 50%;
-      left: 20px;
-      right: 20px;
-      transform: translateY(-50%);
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
       pointer-events: none;
       z-index: 10;
-      opacity: 0.4;
+      opacity: 0.7;
       animation: fadeInOut 3s infinite;
     }
 
+    .rotation-hint {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 8px 16px;
+      border-radius: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      font-size: 0.75rem;
+      color: #666;
+    }
+
+    .rotation-arrows {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
     .rotation-arrow {
-      position: absolute;
-      width: 30px;
-      height: 30px;
-      border: 2px solid #006aff;
+      width: 20px;
+      height: 20px;
+      border: 1.5px solid #006aff;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: rgba(255, 255, 255, 0.8);
-      font-size: 14px;
+      font-size: 10px;
       color: #006aff;
-    }
-
-    .rotation-arrow.left {
-      left: 0;
-    }
-
-    .rotation-arrow.right {
-      right: 0;
+      background: white;
     }
 
     @keyframes fadeInOut {
-      0%, 100% { opacity: 0.4; }
-      50% { opacity: 0.8; }
+      0%, 100% { opacity: 0.7; }
+      50% { opacity: 1; }
     }
 
     /* BOTTOM SECTION - CONFIGURATION */
@@ -514,14 +522,18 @@
       }
       
       .rotation-indicators {
-        left: 10px;
-        right: 10px;
+        bottom: 10px;
+      }
+      
+      .rotation-hint {
+        padding: 6px 12px;
+        font-size: 0.65rem;
       }
       
       .rotation-arrow {
-        width: 25px;
-        height: 25px;
-        font-size: 12px;
+        width: 16px;
+        height: 16px;
+        font-size: 8px;
       }
       
       /* SECTION CONFIGURATION MOBILE */
@@ -761,21 +773,26 @@
           id="mv"
           src="INTEMPORELHOME22.glb"
           alt="Maison Intemporel'home"
-          camera-orbit="15deg 75deg 3m"
+          camera-orbit="15deg 75deg 5m"
           field-of-view="45deg"
           exposure="1"
           shadow-intensity="2.5"
           shadow-softness="1"
           camera-controls
-          min-camera-orbit="-Infinity 0deg 2m"
-          max-camera-orbit="Infinity 90deg 8m"
+          min-camera-orbit="-Infinity 0deg 3m"
+          max-camera-orbit="Infinity 90deg 10m"
           camera-target="0m 1m 0m"
           interaction-prompt="none">
         </model-viewer>
-        <!-- Flèches d'indication pour la rotation -->
+        <!-- Flèches d'indication style Volkswagen -->
         <div class="rotation-indicators">
-          <div class="rotation-arrow left">◀</div>
-          <div class="rotation-arrow right">▶</div>
+          <div class="rotation-hint">
+            <div class="rotation-arrows">
+              <div class="rotation-arrow">◀</div>
+              <div class="rotation-arrow">▶</div>
+            </div>
+            <span>Faites glisser pour faire tourner</span>
+          </div>
         </div>
       </div>
     </div>
@@ -1006,7 +1023,7 @@
           </div>
 
           <div class="action-buttons">
-            <button class="btn-save" onclick="saveConfiguration()">📄 Enregistrer PDF</button>
+            <button class="btn-save" onclick="saveConfiguration()">Enregistrer PDF</button>
             <button class="btn-quote">Demander un devis</button>
           </div>
         </div>
