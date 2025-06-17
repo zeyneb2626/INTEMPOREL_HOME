@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>Configuration Intemporel'home P4</title>
   <script type="module" src="https://unpkg.com/@google/model-viewer@1.12.0/dist/model-viewer.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     * { box-sizing:border-box; margin:0; padding:0 }
     html, body { height:100%; font-family:sans-serif; background:#f0f2f5 }
@@ -60,6 +61,7 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       overflow: hidden;
       height: 100%;
+      position: relative;
     }
 
     model-viewer {
@@ -68,6 +70,46 @@
       background: #dddddd;
       pointer-events: all;
       touch-action: none;
+    }
+
+    /* FLÈCHES D'INDICATION ROTATION */
+    .rotation-indicators {
+      position: absolute;
+      top: 50%;
+      left: 20px;
+      right: 20px;
+      transform: translateY(-50%);
+      pointer-events: none;
+      z-index: 10;
+      opacity: 0.4;
+      animation: fadeInOut 3s infinite;
+    }
+
+    .rotation-arrow {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      border: 2px solid #006aff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.8);
+      font-size: 14px;
+      color: #006aff;
+    }
+
+    .rotation-arrow.left {
+      left: 0;
+    }
+
+    .rotation-arrow.right {
+      right: 0;
+    }
+
+    @keyframes fadeInOut {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 0.8; }
     }
 
     /* BOTTOM SECTION - CONFIGURATION */
@@ -433,12 +475,12 @@
     }
 
     .btn-save {
-      background: #f0f0f0;
-      color: #333;
+      background: #28a745;
+      color: #fff;
     }
 
     .btn-save:hover {
-      background: #e0e0e0;
+      background: #218838;
     }
 
     .btn-quote {
@@ -461,14 +503,25 @@
       }
       
       .top-section {
-        height: 25vh; /* RÉDUIT ENCORE PLUS: DE 30vh À 25vh */
-        min-height: 180px; /* RÉDUIT ENCORE PLUS: DE 200px À 180px */
+        height: 35vh; /* AUGMENTÉ DE 25vh À 35vh POUR MOBILE */
+        min-height: 250px; /* AUGMENTÉ DE 180px À 250px */
       }
       
       /* MODÈLE 3D EN PLEINE LARGEUR EN HAUT */
       .viewer-card {
         border-radius: 0;
         order: 1;
+      }
+      
+      .rotation-indicators {
+        left: 10px;
+        right: 10px;
+      }
+      
+      .rotation-arrow {
+        width: 25px;
+        height: 25px;
+        font-size: 12px;
       }
       
       /* SECTION CONFIGURATION MOBILE */
@@ -708,15 +761,22 @@
           id="mv"
           src="INTEMPORELHOME22.glb"
           alt="Maison Intemporel'home"
+          camera-orbit="15deg 75deg 3m"
+          field-of-view="45deg"
           exposure="1"
           shadow-intensity="2.5"
           shadow-softness="1"
           camera-controls
-          min-camera-orbit="-Infinity 0deg auto"
-          max-camera-orbit="Infinity 90deg auto"
+          min-camera-orbit="-Infinity 0deg 2m"
+          max-camera-orbit="Infinity 90deg 8m"
           camera-target="0m 1m 0m"
           interaction-prompt="none">
         </model-viewer>
+        <!-- Flèches d'indication pour la rotation -->
+        <div class="rotation-indicators">
+          <div class="rotation-arrow left">◀</div>
+          <div class="rotation-arrow right">▶</div>
+        </div>
       </div>
     </div>
 
@@ -861,9 +921,9 @@
               <h3>Menuiserie</h3>
               <div class="config-options">
                 <div class="config-option">
-                  <div class="config-swatch" style="background-color:#FFFFFF" data-color="#FFFFFF" data-cost="0"></div>
+                  <div class="config-swatch" style="background-color:#FFFFFF" data-color="#FFFFFF" data-cost="0" data-base="true"></div>
                   <div class="config-option-label">Blanc</div>
-                  <div class="config-option-price">+0€</div>
+                  <div class="config-option-price">Base</div>
                 </div>
                 <div class="config-option">
                   <div class="config-swatch" style="background-color:#2C2C2C" data-color="#2C2C2C" data-cost="2499"></div>
@@ -878,9 +938,9 @@
               <h3>Gouttière</h3>
               <div class="config-options">
                 <div class="config-option">
-                  <div class="config-swatch" style="background-color:#FFFFFF" data-color="#FFFFFF" data-cost="0"></div>
+                  <div class="config-swatch" style="background-color:#FFFFFF" data-color="#FFFFFF" data-cost="0" data-base="true"></div>
                   <div class="config-option-label">Blanc</div>
-                  <div class="config-option-price">+0€</div>
+                  <div class="config-option-price">Base</div>
                 </div>
               </div>
             </div>
@@ -890,9 +950,9 @@
               <h3>Peinture</h3>
               <div class="config-options">
                 <div class="config-option">
-                  <div class="config-swatch" style="background-color:#FFFFFF" data-color="#FFFFFF" data-cost="0"></div>
+                  <div class="config-swatch" style="background-color:#FFFFFF" data-color="#FFFFFF" data-cost="0" data-base="true"></div>
                   <div class="config-option-label">Blanc</div>
-                  <div class="config-option-price">+0€</div>
+                  <div class="config-option-price">Base</div>
                 </div>
                 <div class="config-option">
                   <div class="config-swatch" style="background-color:#D4C4A3" data-color="#D4C4A3" data-cost="999"></div>
@@ -912,14 +972,14 @@
               <h3>Tôle</h3>
               <div class="config-options">
                 <div class="config-option">
-                  <div class="config-swatch" style="background-color:#9BA1A9" data-color="#9BA1A9" data-cost="0"></div>
+                  <div class="config-swatch" style="background-color:#9BA1A9" data-color="#9BA1A9" data-cost="0" data-base="true"></div>
                   <div class="config-option-label">Gris</div>
-                  <div class="config-option-price">+0€</div>
+                  <div class="config-option-price">Base</div>
                 </div>
                 <div class="config-option">
                   <div class="config-swatch" style="background-color:#1A2E3F" data-color="#1A2E3F" data-cost="0"></div>
                   <div class="config-option-label">Bleu ardoise</div>
-                  <div class="config-option-price">+0€</div>
+                  <div class="config-option-price">Base</div>
                 </div>
                 <div class="config-option">
                   <div class="config-swatch" style="background-color:#C0392B" data-color="#C0392B" data-cost="1800"></div>
@@ -946,7 +1006,7 @@
           </div>
 
           <div class="action-buttons">
-            <button class="btn-save">Enregistrer</button>
+            <button class="btn-save" onclick="saveConfiguration()">📄 Enregistrer PDF</button>
             <button class="btn-quote">Demander un devis</button>
           </div>
         </div>
@@ -1015,6 +1075,116 @@
     let selection = {};
     const basePrice = 189000;
 
+    // Fonction pour enregistrer la configuration en PDF
+    function saveConfiguration() {
+      try {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF();
+        
+        // Titre principal
+        pdf.setFontSize(20);
+        pdf.setTextColor(0, 106, 255);
+        pdf.text('Configuration Intemporel\'home', 105, 20, { align: 'center' });
+        
+        // Date
+        pdf.setFontSize(10);
+        pdf.setTextColor(100, 100, 100);
+        const today = new Date().toLocaleDateString('fr-FR');
+        pdf.text(`Générée le ${today}`, 105, 30, { align: 'center' });
+        
+        let yPos = 50;
+        
+        // Informations générales
+        pdf.setFontSize(14);
+        pdf.setTextColor(0, 0, 0);
+        pdf.text('Informations générales', 20, yPos);
+        yPos += 10;
+        
+        pdf.setFontSize(10);
+        pdf.text('Surface: 85 m²', 20, yPos);
+        pdf.text('Chambres: 3', 80, yPos);
+        pdf.text('Salles d\'eau: 2', 140, yPos);
+        yPos += 20;
+        
+        // Configuration sélectionnée
+        pdf.setFontSize(14);
+        pdf.text('Configuration sélectionnée', 20, yPos);
+        yPos += 10;
+        
+        pdf.setFontSize(10);
+        
+        // Parcourir toutes les catégories
+        document.querySelectorAll('.config-group').forEach(group => {
+          const category = group.dataset.cat;
+          const selectedSwatch = group.querySelector('.config-swatch.selected');
+          
+          if (selectedSwatch) {
+            const label = selectedSwatch.nextElementSibling.textContent;
+            const cost = parseInt(selectedSwatch.dataset.cost);
+            
+            pdf.text(`${category}: ${label}`, 20, yPos);
+            if (cost > 0) {
+              pdf.text(`+${cost.toLocaleString('fr-FR')} €`, 120, yPos);
+            } else {
+              pdf.text('Base', 120, yPos);
+            }
+            yPos += 6;
+          }
+        });
+        
+        yPos += 15;
+        
+        // Performance énergétique
+        const energyValue = document.getElementById('energy-value').textContent;
+        const energyClass = document.getElementById('energy-class').textContent;
+        
+        pdf.setFontSize(14);
+        pdf.text('Performance énergétique', 20, yPos);
+        yPos += 10;
+        
+        pdf.setFontSize(10);
+        pdf.text(`Consommation: ${energyValue}`, 20, yPos);
+        pdf.text(`Classe énergétique: ${energyClass}`, 120, yPos);
+        yPos += 20;
+        
+        // Récapitulatif financier
+        pdf.setFontSize(14);
+        pdf.text('Récapitulatif financier', 20, yPos);
+        yPos += 10;
+        
+        pdf.setFontSize(10);
+        pdf.text(`Prix de base: ${basePrice.toLocaleString('fr-FR')} €`, 20, yPos);
+        yPos += 6;
+        
+        let totalOptions = 0;
+        document.querySelectorAll('.config-group').forEach(group => {
+          const selectedSwatch = group.querySelector('.config-swatch.selected');
+          if (selectedSwatch) {
+            const cost = parseInt(selectedSwatch.dataset.cost);
+            if (cost > 0) {
+              const category = group.dataset.cat;
+              const label = selectedSwatch.nextElementSibling.textContent;
+              totalOptions += cost;
+              pdf.text(`${category} - ${label}: +${cost.toLocaleString('fr-FR')} €`, 20, yPos);
+              yPos += 6;
+            }
+          }
+        });
+        
+        yPos += 10;
+        pdf.setFontSize(12);
+        pdf.setTextColor(0, 106, 255);
+        pdf.text(`TOTAL TTC: ${(basePrice + totalOptions).toLocaleString('fr-FR')} €`, 20, yPos);
+        
+        // Télécharger le PDF
+        pdf.save(`Configuration_Intemporelhome_${today.replace(/\//g, '-')}.pdf`);
+        
+      } catch (error) {
+        console.error('Erreur lors de la génération du PDF:', error);
+        alert('Erreur lors de la génération du PDF. Veuillez réessayer.');
+      }
+    }
+
     // Initialisation au chargement de la page
     window.addEventListener('DOMContentLoaded', () => {
       const mv = document.getElementById('mv');
@@ -1027,6 +1197,17 @@
       const ratingBars = document.querySelectorAll('.rating-bar');
       const houseSvg = document.querySelector('.house-svg');
       const fixedPrice = document.getElementById('fixed-price');
+
+      // Masquer les flèches après quelques secondes
+      setTimeout(() => {
+        const indicators = document.querySelector('.rotation-indicators');
+        if (indicators) {
+          indicators.style.opacity = '0';
+          setTimeout(() => {
+            indicators.style.display = 'none';
+          }, 1000);
+        }
+      }, 5000);
 
       // Gestion du prix fixe au scroll
       window.addEventListener('scroll', () => {
@@ -1153,8 +1334,8 @@
             });
           });
           
-          // Auto-sélection de la première option
-          const first = group.querySelector('.config-swatch');
+          // Auto-sélection de la première option (configuration de base)
+          const first = group.querySelector('.config-swatch[data-base="true"]') || group.querySelector('.config-swatch');
           if(first) first.click();
         });
       }
