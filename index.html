@@ -8,7 +8,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     * { box-sizing:border-box; margin:0; padding:0 }
-    html, body { height:100%; font-family:sans-serif; background:#f0f2f5 }
+    html, body { height:100%; font-family:sans-serif; background:#f0f2f5; overflow:hidden; }
 
     .fixed-price {
       position: fixed;
@@ -40,18 +40,20 @@
       color: #1a202c;
     }
 
-    /* DESKTOP LAYOUT */
+    /* DESKTOP LAYOUT - HAUTEUR FIXE SANS DÉFILEMENT */
     #configurator {
       display: flex;
       flex-direction: column;
-      min-height: 100vh;
+      height: 100vh;
       gap: 0.5rem;
       padding: 1rem;
+      overflow: hidden;
     }
 
     /* TOP SECTION - MODÈLE 3D UNIQUEMENT */
     .top-section {
-      height: 50vh;
+      height: 55vh;
+      flex-shrink: 0;
     }
 
     /* MODÈLE 3D PLEINE LARGEUR */
@@ -129,6 +131,9 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       padding: 1rem;
       flex: 1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
     }
 
     .config-header {
@@ -136,6 +141,7 @@
       margin-bottom: 1rem;
       border-bottom: 1px solid #eee;
       padding-bottom: 0.75rem;
+      flex-shrink: 0;
     }
 
     .config-header h2 {
@@ -154,6 +160,8 @@
       display: grid;
       grid-template-columns: 1fr 1.2fr;
       gap: 1.5rem;
+      flex: 1;
+      overflow: hidden;
     }
 
     /* COLONNE GAUCHE - ÉNERGIE + PLAN + INFOS MAISON */
@@ -161,6 +169,7 @@
       display: flex;
       flex-direction: column;
       gap: 1rem;
+      overflow: hidden;
     }
 
     /* SECTION ÉNERGIE + PLAN CÔTE À CÔTE */
@@ -168,6 +177,7 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 1rem;
+      flex-shrink: 0;
     }
 
     .energy-section {
@@ -314,6 +324,7 @@
       border-radius: 8px;
       padding: 1rem;
       border: 1px solid #e2e8f0;
+      flex-shrink: 0;
     }
 
     .dimensions-section h3 {
@@ -354,6 +365,7 @@
       display: flex;
       flex-direction: column;
       gap: 0.75rem;
+      overflow: hidden;
     }
 
     /* GRILLE 3x2 POUR LES CONFIGURATIONS */
@@ -362,7 +374,7 @@
       grid-template-columns: repeat(3, 1fr);
       grid-template-rows: repeat(2, 1fr);
       gap: 0.75rem;
-      margin-bottom: 1rem;
+      flex-shrink: 0;
     }
 
     .config-group {
@@ -437,7 +449,7 @@
       border-radius: 8px;
       padding: 1rem;
       border: 1px solid #e2e8f0;
-      margin-top: 0.75rem;
+      flex-shrink: 0;
     }
 
     .price-section h3 {
@@ -469,7 +481,7 @@
       border-radius: 8px;
       padding: 1rem;
       border: 1px solid #e2e8f0;
-      margin-top: 0.75rem;
+      flex-shrink: 0;
     }
 
     .email-input-group {
@@ -548,17 +560,20 @@
 
     /* RESPONSIVE MOBILE */
     @media (max-width: 768px) {
+      html, body { overflow: auto; }
+      
       #configurator { 
         display: flex;
         flex-direction: column;
-        height: auto;
+        height: 100vh;
         gap: 0;
         padding: 0;
+        overflow: hidden;
       }
       
       .top-section {
-        height: 35vh;
-        min-height: 250px;
+        height: 40vh;
+        flex-shrink: 0;
       }
       
       /* MODÈLE 3D EN PLEINE LARGEUR EN HAUT */
@@ -588,6 +603,8 @@
         border-radius: 0;
         padding: 1rem;
         order: 2;
+        flex: 1;
+        overflow-y: auto;
       }
       
       .config-header h2 {
