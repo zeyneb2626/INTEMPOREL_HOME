@@ -80,43 +80,45 @@
       transform: translateX(-50%);
       pointer-events: none;
       z-index: 10;
-      opacity: 0.7;
-      animation: fadeInOut 3s infinite;
+      opacity: 0.8;
+      animation: fadeInOut 4s infinite;
     }
 
     .rotation-hint {
       display: flex;
       align-items: center;
-      gap: 8px;
-      background: rgba(255, 255, 255, 0.9);
-      padding: 8px 16px;
-      border-radius: 20px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-      font-size: 0.75rem;
-      color: #666;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 10px 20px;
+      border-radius: 25px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      font-size: 0.8rem;
+      color: #555;
+      font-weight: 500;
     }
 
     .rotation-arrows {
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 8px;
     }
 
     .rotation-arrow {
-      width: 20px;
-      height: 20px;
-      border: 1.5px solid #006aff;
+      width: 24px;
+      height: 24px;
+      border: 2px solid #1976d2;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 10px;
-      color: #006aff;
+      font-size: 12px;
+      color: #1976d2;
       background: white;
+      font-weight: bold;
     }
 
     @keyframes fadeInOut {
-      0%, 100% { opacity: 0.7; }
+      0%, 100% { opacity: 0.8; }
       50% { opacity: 1; }
     }
 
@@ -526,14 +528,15 @@
       }
       
       .rotation-hint {
-        padding: 6px 12px;
-        font-size: 0.65rem;
+        padding: 8px 16px;
+        font-size: 0.7rem;
+        gap: 8px;
       }
       
       .rotation-arrow {
-        width: 16px;
-        height: 16px;
-        font-size: 8px;
+        width: 20px;
+        height: 20px;
+        font-size: 10px;
       }
       
       /* SECTION CONFIGURATION MOBILE */
@@ -773,14 +776,14 @@
           id="mv"
           src="INTEMPORELHOME22.glb"
           alt="Maison Intemporel'home"
-          camera-orbit="15deg 75deg 5m"
+          camera-orbit="15deg 75deg 8m"
           field-of-view="45deg"
           exposure="1"
           shadow-intensity="2.5"
           shadow-softness="1"
           camera-controls
-          min-camera-orbit="-Infinity 0deg 3m"
-          max-camera-orbit="Infinity 90deg 10m"
+          min-camera-orbit="-Infinity 0deg 5m"
+          max-camera-orbit="Infinity 90deg 15m"
           camera-target="0m 1m 0m"
           interaction-prompt="none">
         </model-viewer>
