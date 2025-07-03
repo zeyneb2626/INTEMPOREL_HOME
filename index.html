@@ -1258,12 +1258,13 @@
   }
 }
     // 📋 FONCTION POUR COLLECTER TOUTES LES DONNÉES DE CONFIGURATION
-    function getConfigurationData() {
+function getConfigurationData() {
   const emailInput = document.getElementById('user-email');
+  const nameInput = document.getElementById('user-name');
+  const phoneInput = document.getElementById('user-phone');
   const energyValue = document.getElementById('energy-value').textContent;
   const energyClass = document.getElementById('energy-class').textContent;
-  const nameInput = document.getElementById('user-name');
-const phoneInput = document.getElementById('user-phone');
+  
   const selectedOptions = {};
   let totalOptions = 0;
   
@@ -1295,6 +1296,8 @@ const phoneInput = document.getElementById('user-phone');
   const configData = {
     // Infos client
     email: emailInput.value.trim(),
+    name: nameInput.value.trim(),
+    phone: phoneInput.value.trim(),
     timestamp: new Date().toISOString(),
     dateFormatted: new Date().toLocaleDateString('fr-FR', {
       year: 'numeric',
@@ -1303,14 +1306,12 @@ const phoneInput = document.getElementById('user-phone');
       hour: '2-digit',
       minute: '2-digit'
     }),
-    name: nameInput.value.trim(),
-phone: phoneInput.value.trim(),
     
     // Infos maison
-    houseModel: 'Tradi\'home',
-    surface: '85 m²',
-    bedrooms: 2,
-    bathrooms: 1,
+    houseModel: 'Intemporel\'home P4',
+    surface: '108 m²',
+    bedrooms: 3,
+    bathrooms: 2,
     
     // Configuration sélectionnée
     configuration: selectedOptions,
@@ -1327,19 +1328,15 @@ phone: phoneInput.value.trim(),
     totalPriceFormatted: (basePrice + totalOptions).toLocaleString('fr-FR') + ' €',
     
     // Métadonnées
-    source: 'Configurateur Tradi\'home',
+    source: 'Configurateur Intemporel\'home',
     userAgent: navigator.userAgent,
     url: window.location.href,
     
     // Détail des options (pour Google Sheets)
-    bardage: selectedOptions.Bardage?.label || 'Non défini',
-    bardagePrix: selectedOptions.Bardage?.cost || 0,
     menuiserie: selectedOptions.Menuiserie?.label || 'Non défini',
     menuiseriePrix: selectedOptions.Menuiserie?.cost || 0,
     gouttiere: selectedOptions.Gouttiere?.label || 'Non défini',
     gouttierePrix: selectedOptions.Gouttiere?.cost || 0,
-    pergola: selectedOptions.Pergola?.label || 'Non défini',
-    pergolaPrix: selectedOptions.Pergola?.cost || 0,
     peinture: selectedOptions.Murs?.label || 'Non défini',
     peinturePrix: selectedOptions.Murs?.cost || 0,
     tole: selectedOptions.Toit?.label || 'Non défini',
@@ -1379,55 +1376,47 @@ phone: phoneInput.value.trim(),
     }
 
     // 🚀 FONCTION POUR DEMANDER UN DEVIS
-    async function requestQuote() {
+   // 🚀 FONCTION POUR DEMANDER UN DEVIS
+async function requestQuote() {
   const emailInput = document.getElementById('user-email');
+  const nameInput = document.getElementById('user-name');
+  const phoneInput = document.getElementById('user-phone');
   const quoteBtn = document.getElementById('quote-btn');
+  
   const email = emailInput.value.trim();
-  
-  // Validation de l'email
+  const name = nameInput.value.trim();
+  const phone = phoneInput.value.trim();
+
   // Validation des champs
-const nameInput = document.getElementById('user-name');
-const phoneInput = document.getElementById('user-phone');
-const name = nameInput.value.trim();
-const phone = phoneInput.value.trim();
+  if (!name) {
+    alert('Veuillez saisir votre nom et prénom.');
+    nameInput.focus();
+    return;
+  }
 
-if (!name) {
-  alert('Veuillez saisir votre nom et prénom.');
-  nameInput.focus();
-  return;
-}
+  if (!phone) {
+    alert('Veuillez saisir votre numéro de téléphone.');
+    phoneInput.focus();
+    return;
+  }
 
-if (!phone) {
-  alert('Veuillez saisir votre numéro de téléphone.');
-  phoneInput.focus();
-  return;
-}
+  if (!isValidPhone(phone)) {
+    alert('Veuillez saisir un numéro de téléphone valide.');
+    phoneInput.focus();
+    return;
+  }
 
-if (!isValidPhone(phone)) {
-  alert('Veuillez saisir un numéro de téléphone valide.');
-  phoneInput.focus();
-  return;
-}
+  if (!email) {
+    alert('Veuillez saisir votre email pour recevoir le devis.');
+    emailInput.focus();
+    return;
+  }
 
-if (!email) {
-  alert('Veuillez saisir votre email pour recevoir le devis.');
-  emailInput.focus();
-  return;
-}
-
-if (!isValidEmail(email)) {
-  alert('Veuillez saisir un email valide.');
-  emailInput.focus();
-  return;
-  
-// Fonction de validation téléphone
-function isValidPhone(phone) {
-  // Regex pour numéros français (mobile et fixe)
-  const phoneRegex = /^(?:(?:\+33|0)[1-9](?:[0-9]{8}))$/;
-  // Nettoie le numéro (supprime espaces, points, tirets)
-  const cleanPhone = phone.replace(/[\s\.\-]/g, '');
-  return phoneRegex.test(cleanPhone);
-}
+  if (!isValidEmail(email)) {
+    alert('Veuillez saisir un email valide.');
+    emailInput.focus();
+    return;
+  }
   
   // Interface utilisateur pendant l'envoi
   quoteBtn.disabled = true;
@@ -1446,12 +1435,12 @@ function isValidPhone(phone) {
     
     if (result.success) {
       console.log('Devis envoyé avec succès!');
-      alert(`✅ Devis envoyé avec succès à ${email}!\n\nVous recevrez votre devis personnalisé dans quelques minutes.\n\nMerci ${name} pour votre intérêt pour nos maisons Tradi'home!`);
+      alert(`✅ Devis envoyé avec succès à ${email}!\n\nVous recevrez votre devis personnalisé dans quelques minutes.\n\nMerci ${name} pour votre intérêt pour nos maisons Intemporel'home!`);
 
-// Vider tous les champs après envoi réussi
-nameInput.value = '';
-phoneInput.value = '';
-emailInput.value = '';
+      // Vider tous les champs après envoi réussi
+      nameInput.value = '';
+      phoneInput.value = '';
+      emailInput.value = '';
       
     } else {
       throw new Error(result.error || 'Erreur inconnue lors de l\'envoi');
@@ -1467,7 +1456,20 @@ emailInput.value = '';
     quoteBtn.textContent = 'Demander un devis';
   }
 }
+    // Fonction de validation email
+function isValidEmail(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
 
+// Fonction de validation téléphone
+function isValidPhone(phone) {
+  // Regex pour numéros français (mobile et fixe)
+  const phoneRegex = /^(?:(?:\+33|0)[1-9](?:[0-9]{8}))$/;
+  // Nettoie le numéro (supprime espaces, points, tirets)
+  const cleanPhone = phone.replace(/[\s\.\-]/g, '');
+  return phoneRegex.test(cleanPhone);
+}
     // Fonction pour enregistrer la configuration en PDF
     function saveConfiguration() {
       try {
@@ -1491,7 +1493,7 @@ emailInput.value = '';
         yPos += 10;
         
         pdf.setFontSize(10);
-        pdf.text('Surface: 85 m²', 20, yPos);
+        pdf.text('Surface: 108 m²', 20, yPos);
         pdf.text('Chambres: 3', 80, yPos);
         pdf.text('Salles d\'eau: 2', 140, yPos);
         yPos += 20;
