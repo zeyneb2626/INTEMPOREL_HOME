@@ -1257,219 +1257,191 @@
     return { success: false, error: error.message };
   }
 }
-    // 📋 FONCTION POUR COLLECTER TOUTES LES DONNÉES DE CONFIGURATION
-function getConfigurationData() {
-  const emailInput = document.getElementById('user-email');
-  const nameInput = document.getElementById('user-name');
-  const phoneInput = document.getElementById('user-phone');
-  const energyValue = document.getElementById('energy-value').textContent;
-  const energyClass = document.getElementById('energy-class').textContent;
-  
-  const selectedOptions = {};
-  let totalOptions = 0;
-  
-  // Récupération de toutes les options sélectionnées
-  document.querySelectorAll('.config-group').forEach(group => {
-    const category = group.dataset.cat;
-    const selectedSwatch = group.querySelector('.config-swatch.selected');
-    
-    if (selectedSwatch) {
-      const label = selectedSwatch.nextElementSibling.textContent;
-      const cost = parseInt(selectedSwatch.dataset.cost) || 0;
-      const color = selectedSwatch.dataset.color;
-      const isBase = selectedSwatch.dataset.base === 'true';
+     // 📋 FONCTION POUR COLLECTER TOUTES LES DONNÉES DE CONFIGURATION
+    function getConfigurationData() {
+      const emailInput = document.getElementById('user-email');
+      const nameInput = document.getElementById('user-name');
+      const phoneInput = document.getElementById('user-phone');
+      const energyValue = document.getElementById('energy-value').textContent;
+      const energyClass = document.getElementById('energy-class').textContent;
       
-      selectedOptions[category] = {
-        label: label,
-        cost: cost,
-        color: color,
-        isBase: isBase
-      };
+      const selectedOptions = {};
+      let totalOptions = 0;
       
-      if (cost > 0) {
-        totalOptions += cost;
-      }
-    }
-  });
-
-  // Structure des données à envoyer vers n8n
-  const configData = {
-    // Infos client
-    email: emailInput.value.trim(),
-    name: nameInput.value.trim(),
-    phone: phoneInput.value.trim(),
-    timestamp: new Date().toISOString(),
-    dateFormatted: new Date().toLocaleDateString('fr-FR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }),
-    
-    // Infos maison
-    houseModel: 'Intemporel\'home P4',
-    surface: '108 m²',
-    bedrooms: 3,
-    bathrooms: 2,
-    
-    // Configuration sélectionnée
-    configuration: selectedOptions,
-    
-    // Performance énergétique
-    energyConsumption: energyValue,
-    energyClass: energyClass,
-    energyDetails: document.getElementById('energy-details').textContent,
-    
-    // Tarification
-    basePrice: basePrice,
-    optionsTotal: totalOptions,
-    totalPrice: basePrice + totalOptions,
-    totalPriceFormatted: (basePrice + totalOptions).toLocaleString('fr-FR') + ' €',
-    
-    // Métadonnées
-    source: 'Configurateur Intemporel\'home',
-    userAgent: navigator.userAgent,
-    url: window.location.href,
-    
-    // Détail des options (pour Google Sheets)
-    menuiserie: selectedOptions.Menuiserie?.label || 'Non défini',
-    menuiseriePrix: selectedOptions.Menuiserie?.cost || 0,
-    gouttiere: selectedOptions.Gouttiere?.label || 'Non défini',
-    gouttierePrix: selectedOptions.Gouttiere?.cost || 0,
-    peinture: selectedOptions.Murs?.label || 'Non défini',
-    peinturePrix: selectedOptions.Murs?.cost || 0,
-    tole: selectedOptions.Toit?.label || 'Non défini',
-    tolePrix: selectedOptions.Toit?.cost || 0
-  };
-
-  return configData;
-}
-
-      return {
-        email: emailInput.value.trim(),
-        timestamp: new Date().toISOString(),
-        houseInfo: {
-          surface: '85 m²',
-          bedrooms: 3,
-          bathrooms: 2,
-          model: 'Intemporel\'home P4'
-        },
-        configuration: selectedOptions,
-        energyPerformance: {
-          consumption: energyValue,
-          class: energyClass,
-          details: document.getElementById('energy-details').textContent
-        },
-        pricing: {
-          basePrice: basePrice,
-          optionsTotal: totalOptions,
-          totalPrice: basePrice + totalOptions,
-          currency: 'EUR'
-        },
-        metadata: {
-          source: 'Configurateur Intemporel\'home',
-          userAgent: navigator.userAgent,
-          url: window.location.href
+      // Récupération de toutes les options sélectionnées
+      document.querySelectorAll('.config-group').forEach(group => {
+        const category = group.dataset.cat;
+        const selectedSwatch = group.querySelector('.config-swatch.selected');
+        
+        if (selectedSwatch) {
+          const label = selectedSwatch.nextElementSibling.textContent;
+          const cost = parseInt(selectedSwatch.dataset.cost) || 0;
+          const color = selectedSwatch.dataset.color;
+          const isBase = selectedSwatch.dataset.base === 'true';
+          
+          selectedOptions[category] = {
+            label: label,
+            cost: cost,
+            color: color,
+            isBase: isBase
+          };
+          
+          if (cost > 0) {
+            totalOptions += cost;
+          }
         }
+      });
+
+      // Structure des données à envoyer vers n8n
+      const configData = {
+        // Infos client
+        email: emailInput.value.trim(),
+        name: nameInput.value.trim(),
+        phone: phoneInput.value.trim(),
+        timestamp: new Date().toISOString(),
+        dateFormatted: new Date().toLocaleDateString('fr-FR', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        }),
+        
+        // Infos maison
+        houseModel: 'Intemporel\'home P4',
+        surface: '108 m²',
+        bedrooms: 3,
+        bathrooms: 2,
+        
+        // Configuration sélectionnée
+        configuration: selectedOptions,
+        
+        // Performance énergétique
+        energyConsumption: energyValue,
+        energyClass: energyClass,
+        energyDetails: document.getElementById('energy-details').textContent,
+        
+        // Tarification
+        basePrice: basePrice,
+        optionsTotal: totalOptions,
+        totalPrice: basePrice + totalOptions,
+        totalPriceFormatted: (basePrice + totalOptions).toLocaleString('fr-FR') + ' €',
+        
+        // Métadonnées
+        source: 'Configurateur Intemporel\'home',
+        userAgent: navigator.userAgent,
+        url: window.location.href,
+        
+        // Détail des options (pour Google Sheets)
+        menuiserie: selectedOptions.Menuiserie?.label || 'Non défini',
+        menuiseriePrix: selectedOptions.Menuiserie?.cost || 0,
+        gouttiere: selectedOptions.Gouttiere?.label || 'Non défini',
+        gouttierePrix: selectedOptions.Gouttiere?.cost || 0,
+        peinture: selectedOptions.Murs?.label || 'Non défini',
+        peinturePrix: selectedOptions.Murs?.cost || 0,
+        tole: selectedOptions.Toit?.label || 'Non défini',
+        tolePrix: selectedOptions.Toit?.cost || 0
       };
+
+      return configData;
     }
 
     // 🚀 FONCTION POUR DEMANDER UN DEVIS
-   // 🚀 FONCTION POUR DEMANDER UN DEVIS
-async function requestQuote() {
-  const emailInput = document.getElementById('user-email');
-  const nameInput = document.getElementById('user-name');
-  const phoneInput = document.getElementById('user-phone');
-  const quoteBtn = document.getElementById('quote-btn');
-  
-  const email = emailInput.value.trim();
-  const name = nameInput.value.trim();
-  const phone = phoneInput.value.trim();
-
-  // Validation des champs
-  if (!name) {
-    alert('Veuillez saisir votre nom et prénom.');
-    nameInput.focus();
-    return;
-  }
-
-  if (!phone) {
-    alert('Veuillez saisir votre numéro de téléphone.');
-    phoneInput.focus();
-    return;
-  }
-
-  if (!isValidPhone(phone)) {
-    alert('Veuillez saisir un numéro de téléphone valide.');
-    phoneInput.focus();
-    return;
-  }
-
-  if (!email) {
-    alert('Veuillez saisir votre email pour recevoir le devis.');
-    emailInput.focus();
-    return;
-  }
-
-  if (!isValidEmail(email)) {
-    alert('Veuillez saisir un email valide.');
-    emailInput.focus();
-    return;
-  }
-  
-  // Interface utilisateur pendant l'envoi
-  quoteBtn.disabled = true;
-  quoteBtn.classList.add('loading');
-  quoteBtn.textContent = 'Envoi en cours...';
-  
-  try {
-    console.log('Début de l\'envoi du devis...');
-    
-    // Récupération des données de configuration
-    const configData = getConfigurationData();
-    console.log('Données à envoyer:', configData);
-    
-    // Envoi vers n8n
-    const result = await sendQuoteToWebhook(configData);
-    
-    if (result.success) {
-      console.log('Devis envoyé avec succès!');
-      alert(`✅ Devis envoyé avec succès à ${email}!\n\nVous recevrez votre devis personnalisé dans quelques minutes.\n\nMerci ${name} pour votre intérêt pour nos maisons Intemporel'home!`);
-
-      // Vider tous les champs après envoi réussi
-      nameInput.value = '';
-      phoneInput.value = '';
-      emailInput.value = '';
+    async function requestQuote() {
+      const emailInput = document.getElementById('user-email');
+      const nameInput = document.getElementById('user-name');
+      const phoneInput = document.getElementById('user-phone');
+      const quoteBtn = document.getElementById('quote-btn');
       
-    } else {
-      throw new Error(result.error || 'Erreur inconnue lors de l\'envoi');
-    }
-    
-  } catch (error) {
-    console.error('Erreur lors de l\'envoi du devis:', error);
-    alert(`❌ Erreur lors de l'envoi du devis.\n\nVeuillez réessayer dans quelques instants.\n\nSi le problème persiste, contactez-nous directement.\n\nDétails: ${error.message}`);
-  } finally {
-    // Restauration de l'interface
-    quoteBtn.disabled = false;
-    quoteBtn.classList.remove('loading');
-    quoteBtn.textContent = 'Demander un devis';
-  }
-}
-    // Fonction de validation email
-function isValidEmail(email) {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-}
+      const email = emailInput.value.trim();
+      const name = nameInput.value.trim();
+      const phone = phoneInput.value.trim();
 
-// Fonction de validation téléphone
-function isValidPhone(phone) {
-  // Regex pour numéros français (mobile et fixe)
-  const phoneRegex = /^(?:(?:\+33|0)[1-9](?:[0-9]{8}))$/;
-  // Nettoie le numéro (supprime espaces, points, tirets)
-  const cleanPhone = phone.replace(/[\s\.\-]/g, '');
-  return phoneRegex.test(cleanPhone);
-}
+      // Validation des champs
+      if (!name) {
+        alert('Veuillez saisir votre nom et prénom.');
+        nameInput.focus();
+        return;
+      }
+
+      if (!phone) {
+        alert('Veuillez saisir votre numéro de téléphone.');
+        phoneInput.focus();
+        return;
+      }
+
+      if (!isValidPhone(phone)) {
+        alert('Veuillez saisir un numéro de téléphone valide.');
+        phoneInput.focus();
+        return;
+      }
+
+      if (!email) {
+        alert('Veuillez saisir votre email pour recevoir le devis.');
+        emailInput.focus();
+        return;
+      }
+
+      if (!isValidEmail(email)) {
+        alert('Veuillez saisir un email valide.');
+        emailInput.focus();
+        return;
+      }
+      
+      // Interface utilisateur pendant l'envoi
+      quoteBtn.disabled = true;
+      quoteBtn.classList.add('loading');
+      quoteBtn.textContent = 'Envoi en cours...';
+      
+      try {
+        console.log('Début de l\'envoi du devis...');
+        
+        // Récupération des données de configuration
+        const configData = getConfigurationData();
+        console.log('Données à envoyer:', configData);
+        
+        // Envoi vers n8n
+        const result = await sendQuoteToWebhook(configData);
+        
+        if (result.success) {
+          console.log('Devis envoyé avec succès!');
+          alert(`✅ Devis envoyé avec succès à ${email}!\n\nVous recevrez votre devis personnalisé dans quelques minutes.\n\nMerci ${name} pour votre intérêt pour nos maisons Intemporel'home!`);
+
+          // Vider tous les champs après envoi réussi
+          nameInput.value = '';
+          phoneInput.value = '';
+          emailInput.value = '';
+          
+        } else {
+          throw new Error(result.error || 'Erreur inconnue lors de l\'envoi');
+        }
+        
+      } catch (error) {
+        console.error('Erreur lors de l\'envoi du devis:', error);
+        alert(`❌ Erreur lors de l'envoi du devis.\n\nVeuillez réessayer dans quelques instants.\n\nSi le problème persiste, contactez-nous directement.\n\nDétails: ${error.message}`);
+      } finally {
+        // Restauration de l'interface
+        quoteBtn.disabled = false;
+        quoteBtn.classList.remove('loading');
+        quoteBtn.textContent = 'Demander un devis';
+      }
+    }
+
+    // Fonction de validation email
+    function isValidEmail(email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRegex.test(email);
+    }
+
+    // Fonction de validation téléphone
+    function isValidPhone(phone) {
+      // Regex pour numéros français (mobile et fixe)
+      const phoneRegex = /^(?:(?:\+33|0)[1-9](?:[0-9]{8}))$/;
+      // Nettoie le numéro (supprime espaces, points, tirets)
+      const cleanPhone = phone.replace(/[\s\.\-]/g, '');
+      return phoneRegex.test(cleanPhone);
+    }
+
     // Fonction pour enregistrer la configuration en PDF
     function saveConfiguration() {
       try {
