@@ -1147,7 +1147,7 @@
     </div>
   </div>
 
-  <script>
+ <script>
     // ⚙️ CONFIGURATION WEBHOOK
     const WEBHOOK_URL = 'https://naiom.app.n8n.cloud/webhook/submit-config';
     
@@ -1222,52 +1222,60 @@
     let selection = {};
     const basePrice = 189000;
 
-    // 📧 FONCTION POUR ENVOYER LE DEVIS VIA WEBHOOK
+    // 📧 FONCTION POUR ENVOYER LE DEVIS VIA WEBHOOK - CORRIGÉE
     async function sendQuoteToWebhook(quoteData) {
-  try {
-    console.log('Envoi des données vers n8n:', quoteData);
-    
-    const response = await fetch(WEBHOOK_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify(quoteData)
-    });
+      try {
+        console.log('Envoi des données vers n8n:', quoteData);
+        
+        const response = await fetch(WEBHOOK_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(quoteData)
+        });
 
-    console.log('Réponse du webhook:', response.status);
+        console.log('Réponse du webhook:', response.status);
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Erreur réponse webhook:', errorText);
-      throw new Error(`Erreur ${response.status}: ${errorText}`);
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Erreur réponse webhook:', errorText);
+          throw new Error(`Erreur ${response.status}: ${errorText}`);
+        }
+
+        // Lecture sécurisée de la réponse
+        const contentType = response.headers.get('content-type');
+        let result;
+        
+        if (contentType && contentType.includes('application/json')) {
+          result = await response.json();
+        } else {
+          result = await response.text();
+        }
+
+        console.log('Données envoyées avec succès:', result);
+        return { success: true, data: result };
+        
+      } catch (error) {
+        console.error('Erreur lors de l\'envoi du webhook:', error);
+        return { success: false, error: error.message };
+      }
     }
 
-    // Tentative de lecture de la réponse JSON
-    let result;
-    try {
-      result = await response.json();
-    } catch (parseError) {
-      // Si pas de JSON, on lit le texte
-      result = await response.text();
-    }
-
-    console.log('Données envoyées avec succès:', result);
-    return { success: true, data: result };
-    
-  } catch (error) {
-    console.error('Erreur lors de l\'envoi du webhook:', error);
-    return { success: false, error: error.message };
-  }
-}
-     // 📋 FONCTION POUR COLLECTER TOUTES LES DONNÉES DE CONFIGURATION
+    // 📋 FONCTION POUR COLLECTER TOUTES LES DONNÉES DE CONFIGURATION - CORRIGÉE
     function getConfigurationData() {
       const emailInput = document.getElementById('user-email');
       const nameInput = document.getElementById('user-name');
       const phoneInput = document.getElementById('user-phone');
-      const energyValue = document.getElementById('energy-value').textContent;
-      const energyClass = document.getElementById('energy-class').textContent;
+      const energyValue = document.getElementById('energy-value');
+      const energyClass = document.getElementById('energy-class');
+      const energyDetails = document.getElementById('energy-details');
+      
+      // Vérifications de sécurité
+      if (!emailInput || !nameInput || !phoneInput) {
+        throw new Error('Éléments de formulaire manquants');
+      }
       
       const selectedOptions = {};
       let totalOptions = 0;
@@ -1278,9 +1286,10 @@
         const selectedSwatch = group.querySelector('.config-swatch.selected');
         
         if (selectedSwatch) {
-          const label = selectedSwatch.nextElementSibling.textContent;
+          const labelElement = selectedSwatch.nextElementSibling;
+          const label = labelElement ? labelElement.textContent : 'Non défini';
           const cost = parseInt(selectedSwatch.dataset.cost) || 0;
-          const color = selectedSwatch.dataset.color;
+          const color = selectedSwatch.dataset.color || '#FFFFFF';
           const isBase = selectedSwatch.dataset.base === 'true';
           
           selectedOptions[category] = {
@@ -1321,9 +1330,9 @@
         configuration: selectedOptions,
         
         // Performance énergétique
-        energyConsumption: energyValue,
-        energyClass: energyClass,
-        energyDetails: document.getElementById('energy-details').textContent,
+        energyConsumption: energyValue ? energyValue.textContent : '45 kWh/an',
+        energyClass: energyClass ? energyClass.textContent : 'A+',
+        energyDetails: energyDetails ? energyDetails.textContent : 'Configuration de base',
         
         // Tarification
         basePrice: basePrice,
@@ -1350,12 +1359,19 @@
       return configData;
     }
 
-    // 🚀 FONCTION POUR DEMANDER UN DEVIS
+    // 🚀 FONCTION POUR DEMANDER UN DEVIS - CORRIGÉE
     async function requestQuote() {
       const emailInput = document.getElementById('user-email');
       const nameInput = document.getElementById('user-name');
       const phoneInput = document.getElementById('user-phone');
       const quoteBtn = document.getElementById('quote-btn');
+      
+      // Vérifier que les éléments existent
+      if (!emailInput || !nameInput || !phoneInput || !quoteBtn) {
+        console.error('Éléments manquants dans le DOM');
+        alert('Erreur: Éléments de formulaire manquants');
+        return;
+      }
       
       const email = emailInput.value.trim();
       const name = nameInput.value.trim();
@@ -1395,6 +1411,7 @@
       // Interface utilisateur pendant l'envoi
       quoteBtn.disabled = true;
       quoteBtn.classList.add('loading');
+      const originalText = quoteBtn.textContent;
       quoteBtn.textContent = 'Envoi en cours...';
       
       try {
@@ -1403,6 +1420,11 @@
         // Récupération des données de configuration
         const configData = getConfigurationData();
         console.log('Données à envoyer:', configData);
+        
+        // Vérification que les données sont complètes
+        if (!configData.email || !configData.name) {
+          throw new Error('Données de configuration incomplètes');
+        }
         
         // Envoi vers n8n
         const result = await sendQuoteToWebhook(configData);
@@ -1427,7 +1449,7 @@
         // Restauration de l'interface
         quoteBtn.disabled = false;
         quoteBtn.classList.remove('loading');
-        quoteBtn.textContent = 'Demander un devis';
+        quoteBtn.textContent = originalText;
       }
     }
 
@@ -1437,13 +1459,15 @@
       return emailRegex.test(email);
     }
 
-    // Fonction de validation téléphone
+    // Fonction de validation téléphone - CORRIGÉE
     function isValidPhone(phone) {
-      // Regex pour numéros français (mobile et fixe)
-      const phoneRegex = /^(?:(?:\+33|0)[1-9](?:[0-9]{8}))$/;
       // Nettoie le numéro (supprime espaces, points, tirets)
-      const cleanPhone = phone.replace(/[\s\.\-]/g, '');
-      return phoneRegex.test(cleanPhone);
+      const cleanPhone = phone.replace(/[\s\.\-\(\)]/g, '');
+      
+      // Regex plus permissive pour numéros français et internationaux
+      const phoneRegex = /^(?:(?:\+33|0033|0)[1-9](?:[0-9]{8})|(?:\+|00)[1-9][0-9]{7,14})$/;
+      
+      return phoneRegex.test(cleanPhone) && cleanPhone.length >= 10;
     }
 
     // Fonction pour enregistrer la configuration en PDF
@@ -1547,6 +1571,16 @@
         alert('Erreur lors de la génération du PDF. Veuillez réessayer.');
       }
     }
+
+    // Gestionnaires d'erreurs globaux - AJOUTÉS
+    window.addEventListener('error', function(event) {
+      console.error('Erreur JavaScript:', event.error);
+    });
+
+    window.addEventListener('unhandledrejection', function(event) {
+      console.error('Promise rejetée:', event.reason);
+      event.preventDefault();
+    });
 
     // Initialisation au chargement de la page
     window.addEventListener('DOMContentLoaded', () => {
