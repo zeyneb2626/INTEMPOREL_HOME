@@ -71,7 +71,11 @@
       pointer-events: all;
       touch-action: pan-x pan-y; /* Permet la rotation du modèle mais empêche le scroll de la page */
     }
-
+.config-content, .config-grid, .config-options {
+  position: relative;
+  z-index: 100;
+  pointer-events: auto;
+}
     /* FLÈCHES D'INDICATION ROTATION STYLE VOLKSWAGEN */
     .rotation-indicators {
       position: absolute;
